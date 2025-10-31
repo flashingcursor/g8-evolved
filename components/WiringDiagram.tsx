@@ -76,29 +76,32 @@ export default function WiringDiagram({
       });
     };
 
-    // Battery Pack
-    const battery = createComponent(50, 50, '48V Battery\nPack', '#10b981');
+    // Power System
+    const battery = createComponent(50, 50, '36V Battery\n100Ah LiFePO₄', '#10b981');
+    const fuse = createComponent(50, 150, '250A ANL\nFuse', '#dc2626');
+    const sw180 = createComponent(50, 250, 'SW180\nMain Contactor', '#8b5cf6');
 
-    // BMS (Battery Management System)
-    const bms = createComponent(50, 200, 'BMS', '#8b5cf6');
+    // Curtis Controller
+    const controller = createComponent(250, 150, 'Curtis 1204M\nController', '#f59e0b');
 
-    // Main Controller
-    const controller = createComponent(250, 150, 'Motor\nController', '#f59e0b');
+    // Motor & Reversing
+    const sw202 = createComponent(450, 250, 'SW202\nReversing', '#6366f1');
+    const motor = createComponent(450, 100, 'DC Series\nMotor', '#ef4444');
 
-    // Motor
-    const motor = createComponent(450, 150, 'DC Motor', '#ef4444');
+    // Control Circuit
+    const keySwitch = createComponent(50, 400, 'Key Switch\n3-Position', '#06b6d4');
+    const dirSwitch = createComponent(200, 400, 'Direction\nSwitch', '#06b6d4');
+    const throttle = createComponent(350, 400, 'PB-6 Throttle\nPot Box', '#14b8a6');
 
-    // Throttle
-    const throttle = createComponent(250, 300, 'Throttle\nInput', '#06b6d4');
-
-    // Dashboard
-    const dashboard = createComponent(450, 50, 'Digital\nDashboard', '#ec4899');
-
-    // Charger Port
-    const charger = createComponent(50, 350, 'Charging\nPort', '#14b8a6');
+    // Accessories
+    const dcConverter = createComponent(600, 50, '36V→12V\nConverter', '#ec4899');
+    const accessories = createComponent(600, 200, '12V Acc.\nLights/Horn', '#a855f7');
 
     // Add components to graph
-    graph.addCells([battery, bms, controller, motor, throttle, dashboard, charger]);
+    graph.addCells([
+      battery, fuse, sw180, controller, sw202, motor,
+      keySwitch, dirSwitch, throttle, dcConverter, accessories
+    ]);
 
     // Create links with labels
     const createLink = (
@@ -126,7 +129,7 @@ export default function WiringDiagram({
             text: {
               text: label,
               fill: '#374151',
-              fontSize: 12,
+              fontSize: 11,
               fontWeight: 'bold'
             },
             rect: {
@@ -141,14 +144,22 @@ export default function WiringDiagram({
       });
     };
 
-    // Create connections
+    // Create connections - Power Path (thick red)
     const links = [
-      createLink(battery, bms, '+ / -', '#dc2626'),
-      createLink(bms, controller, 'Power\n48V', '#dc2626'),
-      createLink(controller, motor, 'Motor\nDrive', '#f59e0b'),
-      createLink(throttle, controller, 'Control\nSignal', '#3b82f6'),
-      createLink(bms, dashboard, 'Telemetry', '#8b5cf6'),
-      createLink(charger, bms, 'Charging', '#14b8a6'),
+      createLink(battery, fuse, 'B+\n2AWG', '#dc2626'),
+      createLink(fuse, sw180, '250A\nProtected', '#dc2626'),
+      createLink(sw180, controller, 'B+\nWhen RUN', '#dc2626'),
+      createLink(controller, motor, 'M-\nArmature', '#f59e0b'),
+      createLink(motor, sw202, 'Field\nF1/F2', '#6366f1'),
+
+      // Control Signals (blue)
+      createLink(keySwitch, sw180, 'Coil\n36V', '#3b82f6'),
+      createLink(dirSwitch, sw202, 'FWD/REV\nCoils', '#3b82f6'),
+      createLink(throttle, controller, '0-5kΩ\nThrottle', '#14b8a6'),
+
+      // Accessories (purple)
+      createLink(battery, dcConverter, '36V In', '#8b5cf6'),
+      createLink(dcConverter, accessories, '12V Out\n20-25A', '#a855f7'),
     ];
 
     graph.addCells(links);
