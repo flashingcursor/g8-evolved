@@ -17,7 +17,7 @@ export default function WiringDiagram({
 }: WiringDiagramProps) {
   const paperContainer = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [useFallback, setUseFallback] = useState(false);
   const routerRef = useRef<AvoidRouter | null>(null);
 
   useEffect(() => {
@@ -27,18 +27,20 @@ export default function WiringDiagram({
     let graph: dia.Graph;
 
     const initDiagram = async () => {
+      let useLibavoid = true;
+
       try {
-        // Load the libavoid WASM library
+        // Try to load the libavoid WASM library
         console.log('Loading libavoid WASM...');
         await AvoidRouter.load();
         console.log('Libavoid WASM loaded successfully');
-        setIsLoading(false);
       } catch (err) {
-        console.error('Failed to load libavoid:', err);
-        setError(`Failed to load libavoid: ${err instanceof Error ? err.message : String(err)}`);
-        setIsLoading(false);
-        return;
+        console.warn('Failed to load libavoid, falling back to Manhattan router:', err);
+        useLibavoid = false;
+        setUseFallback(true);
       }
+
+      setIsLoading(false);
 
       // Create a graph and paper
       graph = new dia.Graph({}, { cellNamespace: shapes });
@@ -52,7 +54,7 @@ export default function WiringDiagram({
         drawGrid: true,
         background: { color: '#F3F7F6' },
         cellViewNamespace: shapes,
-        interactive: { linkMove: false },
+        interactive: useLibavoid ? { linkMove: false } : true,
         linkPinning: false,
         async: true,
         frozen: true,
@@ -65,6 +67,18 @@ export default function WiringDiagram({
             cornerRadius: 4,
           },
         },
+        // Use Manhattan router as fallback if libavoid fails
+        ...(useLibavoid ? {} : {
+          defaultRouter: {
+            name: 'manhattan',
+            args: {
+              step: 10,
+              padding: 20,
+              maximumLoops: 2000,
+              perpendicular: true,
+            }
+          }
+        }),
       });
 
       // Define port groups with consistent styling (libavoid-style)
@@ -332,17 +346,19 @@ export default function WiringDiagram({
       // Add all links to graph
       graph.addCells(allLinks);
 
-      // Initialize and start the AvoidRouter
-      const router = new AvoidRouter(graph, {
-        shapeBufferDistance: 20,
-        idealNudgingDistance: 10,
-        portOverflow: PORT_RADIUS,
-      });
+      // Initialize routing (libavoid or fallback to Manhattan)
+      if (useLibavoid) {
+        const router = new AvoidRouter(graph, {
+          shapeBufferDistance: 20,
+          idealNudgingDistance: 10,
+          portOverflow: PORT_RADIUS,
+        });
 
-      routerRef.current = router;
+        routerRef.current = router;
 
-      router.addGraphListeners();
-      router.routeAll();
+        router.addGraphListeners();
+        router.routeAll();
+      }
 
       // Unfreeze the paper to show the diagram
       paper.unfreeze();
@@ -402,21 +418,26 @@ export default function WiringDiagram({
   return (
     <div className="space-y-4">
       <h2 className="text-2xl font-bold">{title}</h2>
-      {error ? (
-        <div className="flex items-center justify-center border border-red-300 bg-red-50 rounded-lg shadow-lg mx-auto p-8" style={{ width: `${width}px`, height: `${height}px` }}>
-          <div className="text-center">
-            <div className="text-red-600 text-6xl mb-4">⚠️</div>
-            <h3 className="text-xl font-bold text-red-800 mb-2">Failed to Load Routing Engine</h3>
-            <p className="text-red-700 mb-4">{error}</p>
-            <p className="text-sm text-gray-600">Check the browser console for more details.</p>
+      {useFallback && (
+        <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-3">
+          <div className="flex items-start">
+            <div className="text-yellow-600 text-xl mr-3">⚠️</div>
+            <div>
+              <h4 className="font-bold text-yellow-800 text-sm">Using Fallback Router</h4>
+              <p className="text-xs text-yellow-700 mt-1">
+                Libavoid WASM failed to load. Using Manhattan router instead.
+                Check browser console for details.
+              </p>
+            </div>
           </div>
         </div>
-      ) : isLoading ? (
+      )}
+      {isLoading ? (
         <div className="flex items-center justify-center border border-gray-300 rounded-lg shadow-lg mx-auto" style={{ width: `${width}px`, height: `${height}px` }}>
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading libavoid routing engine...</p>
-            <p className="text-xs text-gray-500 mt-2">Loading WASM module...</p>
+            <p className="text-gray-600">Loading routing engine...</p>
+            <p className="text-xs text-gray-500 mt-2">Initializing diagram...</p>
           </div>
         </div>
       ) : (
@@ -432,7 +453,7 @@ export default function WiringDiagram({
           <li>Click on components to view all port definitions</li>
           <li>Click on connections to see source and destination ports</li>
           <li>Drag components to rearrange - connections automatically re-route!</li>
-          <li><strong>Advanced Routing:</strong> Libavoid orthogonal routing with obstacle avoidance</li>
+          <li><strong>{useFallback ? 'Manhattan Routing:' : 'Advanced Routing:'}</strong> {useFallback ? 'Orthogonal pathfinding with obstacle avoidance' : 'Libavoid orthogonal routing with obstacle avoidance'}</li>
           <li>All ports use consistent blue styling for cleaner visual design</li>
         </ul>
         <div className="mt-3 pt-3 border-t border-gray-300 dark:border-gray-600">
@@ -445,14 +466,25 @@ export default function WiringDiagram({
           </div>
         </div>
         <div className="mt-3 pt-3 border-t border-gray-300 dark:border-gray-600">
-          <h4 className="font-bold mb-1 text-sm">Libavoid Routing Engine:</h4>
+          <h4 className="font-bold mb-1 text-sm">{useFallback ? 'Manhattan Routing (Fallback):' : 'Libavoid Routing Engine:'}</h4>
           <div className="text-xs space-y-1">
-            <div>• Orthogonal (horizontal/vertical only) pathfinding algorithm</div>
-            <div>• WebAssembly-based high-performance routing</div>
-            <div>• Automatically avoids all component obstacles</div>
-            <div>• Real-time re-routing when components are dragged</div>
-            <div>• 20px buffer distance prevents wire-to-component overlap</div>
-            <div>• Intelligent nudging to separate overlapping paths</div>
+            {useFallback ? (
+              <>
+                <div>• Orthogonal pathfinding with right-angle turns</div>
+                <div>• Automatic obstacle detection and avoidance</div>
+                <div>• 20px padding around components</div>
+                <div>• Real-time re-routing when components are dragged</div>
+              </>
+            ) : (
+              <>
+                <div>• Orthogonal (horizontal/vertical only) pathfinding algorithm</div>
+                <div>• WebAssembly-based high-performance routing</div>
+                <div>• Automatically avoids all component obstacles</div>
+                <div>• Real-time re-routing when components are dragged</div>
+                <div>• 20px buffer distance prevents wire-to-component overlap</div>
+                <div>• Intelligent nudging to separate overlapping paths</div>
+              </>
+            )}
           </div>
         </div>
       </div>
