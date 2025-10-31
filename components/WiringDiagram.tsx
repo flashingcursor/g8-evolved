@@ -121,7 +121,7 @@ export default function WiringDiagram({
           label: {
             position: {
               name: 'top',
-              args: { y: PORT_RADIUS + 12 }  // Inside: port radius + distance into component
+              args: { y: PORT_RADIUS + 15 }  // Inside: port radius + distance into component
             },
             markup: portLabelMarkup
           }
@@ -132,7 +132,7 @@ export default function WiringDiagram({
           label: {
             position: {
               name: 'bottom',
-              args: { y: -(PORT_RADIUS + 12) }  // Inside: -(port radius + distance into component)
+              args: { y: -(PORT_RADIUS + 15) }  // Inside: -(port radius + distance into component)
             },
             markup: portLabelMarkup
           }
@@ -143,7 +143,7 @@ export default function WiringDiagram({
           label: {
             position: {
               name: 'right',
-              args: { x: -(PORT_RADIUS + 12) }  // Inside: -(port radius + distance into component)
+              args: { x: -(PORT_RADIUS + 15) }  // Inside: -(port radius + distance into component)
             },
             markup: portLabelMarkup
           }
@@ -154,7 +154,7 @@ export default function WiringDiagram({
           label: {
             position: {
               name: 'left',
-              args: { x: PORT_RADIUS + 12 }  // Inside: port radius + distance into component
+              args: { x: PORT_RADIUS + 15 }  // Inside: port radius + distance into component
             },
             markup: portLabelMarkup
           }
