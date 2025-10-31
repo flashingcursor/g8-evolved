@@ -106,30 +106,58 @@ export default function WiringDiagram({
           stroke: '#F4F7F6',
           magnet: 'active',
           r: PORT_RADIUS,
-        },
-        text: {
-          fontSize: 10,
-          fill: '#1f2937',
-          fontWeight: 'bold'
         }
       };
+
+      const portLabelMarkup = [{
+        tagName: 'text',
+        selector: 'portLabel'
+      }];
 
       const portGroups = {
         'top': {
           position: 'top',
           attrs: portAttrs,
+          label: {
+            position: {
+              name: 'top',
+              args: { y: -15 }
+            },
+            markup: portLabelMarkup
+          }
         },
         'bottom': {
           position: 'bottom',
           attrs: portAttrs,
+          label: {
+            position: {
+              name: 'bottom',
+              args: { y: 15 }
+            },
+            markup: portLabelMarkup
+          }
         },
         'right': {
           position: 'right',
           attrs: portAttrs,
+          label: {
+            position: {
+              name: 'right',
+              args: { x: 15 }
+            },
+            markup: portLabelMarkup
+          }
         },
         'left': {
           position: 'left',
           attrs: portAttrs,
+          label: {
+            position: {
+              name: 'left',
+              args: { x: -15 }
+            },
+            markup: portLabelMarkup
+          }
         },
       };
 
@@ -179,8 +207,8 @@ export default function WiringDiagram({
         50, 50, 140, 80,
         '36V Battery\n100Ah LiFePO₄',
         [
-          { id: 'b_plus', group: 'right', attrs: { text: { text: 'B+' } } },
-          { id: 'b_minus', group: 'right', attrs: { text: { text: 'B-' } } }
+          { id: 'b_plus', group: 'right', attrs: { portLabel: { text: 'B+', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'b_minus', group: 'right', attrs: { portLabel: { text: 'B-', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } }
         ]
       );
 
@@ -189,8 +217,8 @@ export default function WiringDiagram({
         50, 180, 140, 60,
         '250A ANL Fuse',
         [
-          { id: 'fuse_in', group: 'top', attrs: { text: { text: 'IN' } } },
-          { id: 'fuse_out', group: 'bottom', attrs: { text: { text: 'OUT' } } }
+          { id: 'fuse_in', group: 'top', attrs: { portLabel: { text: 'IN', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'fuse_out', group: 'bottom', attrs: { portLabel: { text: 'OUT', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } }
         ]
       );
 
@@ -199,10 +227,10 @@ export default function WiringDiagram({
         50, 290, 140, 80,
         'SW180\nMain Contactor',
         [
-          { id: 'sw180_b_in', group: 'top', attrs: { text: { text: 'B+' } } },
-          { id: 'sw180_b_out', group: 'right', attrs: { text: { text: 'B+' } } },
-          { id: 'sw180_coil_pos', group: 'left', attrs: { text: { text: '86' } } },
-          { id: 'sw180_coil_neg', group: 'left', attrs: { text: { text: '85' } } }
+          { id: 'sw180_b_in', group: 'top', attrs: { portLabel: { text: 'B+', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'sw180_b_out', group: 'right', attrs: { portLabel: { text: 'B+', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'sw180_coil_pos', group: 'left', attrs: { portLabel: { text: '86', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'sw180_coil_neg', group: 'left', attrs: { portLabel: { text: '85', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } }
         ]
       );
 
@@ -211,14 +239,14 @@ export default function WiringDiagram({
         280, 180, 160, 100,
         'Curtis 1204M\nController',
         [
-          { id: 'ctrl_b_plus', group: 'left', attrs: { text: { text: 'B+' } } },
-          { id: 'ctrl_b_minus', group: 'left', attrs: { text: { text: 'B-' } } },
-          { id: 'ctrl_m_minus', group: 'right', attrs: { text: { text: 'M-' } } },
-          { id: 'ctrl_ksi', group: 'bottom', attrs: { text: { text: 'KSI' } } },
-          { id: 'ctrl_pot_high', group: 'bottom', attrs: { text: { text: '5V' } } },
-          { id: 'ctrl_pot_wiper', group: 'bottom', attrs: { text: { text: 'POT' } } },
-          { id: 'ctrl_pot_low', group: 'bottom', attrs: { text: { text: 'GND' } } },
-          { id: 'ctrl_enable', group: 'bottom', attrs: { text: { text: 'EN' } } }
+          { id: 'ctrl_b_plus', group: 'left', attrs: { portLabel: { text: 'B+', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'ctrl_b_minus', group: 'left', attrs: { portLabel: { text: 'B-', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'ctrl_m_minus', group: 'right', attrs: { portLabel: { text: 'M-', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'ctrl_ksi', group: 'bottom', attrs: { portLabel: { text: 'KSI', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'ctrl_pot_high', group: 'bottom', attrs: { portLabel: { text: '5V', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'ctrl_pot_wiper', group: 'bottom', attrs: { portLabel: { text: 'POT', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'ctrl_pot_low', group: 'bottom', attrs: { portLabel: { text: 'GND', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'ctrl_enable', group: 'bottom', attrs: { portLabel: { text: 'EN', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } }
         ]
       );
 
@@ -227,10 +255,10 @@ export default function WiringDiagram({
         520, 80, 140, 100,
         'DC Series Motor',
         [
-          { id: 'motor_a1', group: 'left', attrs: { text: { text: 'A1' } } },
-          { id: 'motor_a2', group: 'bottom', attrs: { text: { text: 'A2' } } },
-          { id: 'motor_f1', group: 'bottom', attrs: { text: { text: 'F1' } } },
-          { id: 'motor_f2', group: 'bottom', attrs: { text: { text: 'F2' } } }
+          { id: 'motor_a1', group: 'left', attrs: { portLabel: { text: 'A1', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'motor_a2', group: 'bottom', attrs: { portLabel: { text: 'A2', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'motor_f1', group: 'bottom', attrs: { portLabel: { text: 'F1', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'motor_f2', group: 'bottom', attrs: { portLabel: { text: 'F2', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } }
         ]
       );
 
@@ -239,12 +267,12 @@ export default function WiringDiagram({
         520, 240, 140, 100,
         'SW202\nReversing',
         [
-          { id: 'sw202_a2', group: 'top', attrs: { text: { text: 'A2' } } },
-          { id: 'sw202_f1', group: 'top', attrs: { text: { text: 'F1' } } },
-          { id: 'sw202_f2', group: 'top', attrs: { text: { text: 'F2' } } },
-          { id: 'sw202_fwd_coil', group: 'left', attrs: { text: { text: 'FWD' } } },
-          { id: 'sw202_rev_coil', group: 'left', attrs: { text: { text: 'REV' } } },
-          { id: 'sw202_common', group: 'left', attrs: { text: { text: 'COM' } } }
+          { id: 'sw202_a2', group: 'top', attrs: { portLabel: { text: 'A2', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'sw202_f1', group: 'top', attrs: { portLabel: { text: 'F1', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'sw202_f2', group: 'top', attrs: { portLabel: { text: 'F2', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'sw202_fwd_coil', group: 'left', attrs: { portLabel: { text: 'FWD', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'sw202_rev_coil', group: 'left', attrs: { portLabel: { text: 'REV', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'sw202_common', group: 'left', attrs: { portLabel: { text: 'COM', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } }
         ]
       );
 
@@ -253,9 +281,9 @@ export default function WiringDiagram({
         50, 450, 120, 80,
         'Key Switch\n3-Position',
         [
-          { id: 'key_batt', group: 'left', attrs: { text: { text: 'BAT' } } },
-          { id: 'key_acc', group: 'right', attrs: { text: { text: 'ACC' } } },
-          { id: 'key_run', group: 'top', attrs: { text: { text: 'RUN' } } }
+          { id: 'key_batt', group: 'left', attrs: { portLabel: { text: 'BAT', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'key_acc', group: 'right', attrs: { portLabel: { text: 'ACC', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'key_run', group: 'top', attrs: { portLabel: { text: 'RUN', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } }
         ]
       );
 
@@ -264,9 +292,9 @@ export default function WiringDiagram({
         230, 450, 120, 80,
         'Direction\nSwitch',
         [
-          { id: 'dir_in', group: 'left', attrs: { text: { text: 'IN' } } },
-          { id: 'dir_fwd', group: 'top', attrs: { text: { text: 'FWD' } } },
-          { id: 'dir_rev', group: 'right', attrs: { text: { text: 'REV' } } }
+          { id: 'dir_in', group: 'left', attrs: { portLabel: { text: 'IN', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'dir_fwd', group: 'top', attrs: { portLabel: { text: 'FWD', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'dir_rev', group: 'right', attrs: { portLabel: { text: 'REV', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } }
         ]
       );
 
@@ -275,10 +303,10 @@ export default function WiringDiagram({
         410, 450, 120, 80,
         'PB-6 Throttle\nPot Box',
         [
-          { id: 'throttle_5v', group: 'top', attrs: { text: { text: '5V' } } },
-          { id: 'throttle_wiper', group: 'top', attrs: { text: { text: 'W' } } },
-          { id: 'throttle_gnd', group: 'top', attrs: { text: { text: 'G' } } },
-          { id: 'throttle_sw', group: 'right', attrs: { text: { text: 'SW' } } }
+          { id: 'throttle_5v', group: 'top', attrs: { portLabel: { text: '5V', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'throttle_wiper', group: 'top', attrs: { portLabel: { text: 'W', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'throttle_gnd', group: 'top', attrs: { portLabel: { text: 'G', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'throttle_sw', group: 'right', attrs: { portLabel: { text: 'SW', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } }
         ]
       );
 
@@ -287,10 +315,10 @@ export default function WiringDiagram({
         750, 80, 140, 80,
         '36V→12V\nConverter',
         [
-          { id: 'dc_36v_pos', group: 'left', attrs: { text: { text: '36+' } } },
-          { id: 'dc_36v_neg', group: 'left', attrs: { text: { text: '36-' } } },
-          { id: 'dc_12v_pos', group: 'bottom', attrs: { text: { text: '12+' } } },
-          { id: 'dc_12v_neg', group: 'bottom', attrs: { text: { text: '12-' } } }
+          { id: 'dc_36v_pos', group: 'left', attrs: { portLabel: { text: '36+', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'dc_36v_neg', group: 'left', attrs: { portLabel: { text: '36-', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'dc_12v_pos', group: 'bottom', attrs: { portLabel: { text: '12+', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'dc_12v_neg', group: 'bottom', attrs: { portLabel: { text: '12-', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } }
         ]
       );
 
@@ -299,8 +327,8 @@ export default function WiringDiagram({
         750, 220, 140, 60,
         '12V Accessories\nLights/Horn',
         [
-          { id: 'acc_12v_pos', group: 'top', attrs: { text: { text: '+' } } },
-          { id: 'acc_12v_neg', group: 'top', attrs: { text: { text: '-' } } }
+          { id: 'acc_12v_pos', group: 'top', attrs: { portLabel: { text: '+', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'acc_12v_neg', group: 'top', attrs: { portLabel: { text: '-', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } }
         ]
       );
 
