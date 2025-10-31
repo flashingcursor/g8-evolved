@@ -108,7 +108,7 @@ export default function WiringDiagram({
           magnet: 'active',
           r: PORT_RADIUS,
           filter: {
-            name: 'dropShadow',
+            name: 'dropShadow' as const,
             args: {
               dx: 0,
               dy: 1,
@@ -229,7 +229,7 @@ export default function WiringDiagram({
               rx: 8,
               ry: 8,
               filter: {
-                name: 'dropShadow',
+                name: 'dropShadow' as const,
                 args: {
                   dx: 0,
                   dy: 2,
