@@ -21,12 +21,19 @@ export default function WiringDiagram({
   const routerRef = useRef<AvoidRouter | null>(null);
 
   useEffect(() => {
-    if (!paperContainer.current) return;
+    console.log('WiringDiagram useEffect called, paperContainer.current:', !!paperContainer.current);
+
+    if (!paperContainer.current) {
+      console.warn('paperContainer.current is null, returning');
+      return;
+    }
 
     let paper: dia.Paper;
     let graph: dia.Graph;
 
     const initDiagram = async () => {
+      console.log('initDiagram called');
+
       // Skip libavoid for now - use Manhattan router directly
       const useLibavoid = false;
       setUseFallback(true);
@@ -35,8 +42,10 @@ export default function WiringDiagram({
       console.log('Using Manhattan router (libavoid disabled)');
 
       // Create a graph and paper
+      console.log('Creating graph...');
       graph = new dia.Graph({}, { cellNamespace: shapes });
 
+      console.log('Creating paper...');
       paper = new dia.Paper({
         el: paperContainer.current!,
         model: graph,
@@ -281,10 +290,12 @@ export default function WiringDiagram({
       );
 
       // Add all components to graph
+      console.log('Adding components to graph...');
       graph.addCells([
         battery, fuse, sw180, controller, motor, sw202,
         keySwitch, dirSwitch, throttle, dcConverter, accessories
       ]);
+      console.log('Components added successfully');
 
       // Create port-to-port connections (libavoid-style)
       const createPortLink = (
@@ -353,12 +364,14 @@ export default function WiringDiagram({
       }
 
       // Unfreeze the paper to show the diagram
+      console.log('Unfreezing paper and fitting to content...');
       paper.unfreeze();
       paper.fitToContent({
         useModelGeometry: true,
         padding: 100,
         allowNewOrigin: 'any',
       });
+      console.log('Paper ready and diagram rendered!');
 
       // Add interactivity
       paper.on('element:pointerclick', (elementView) => {
@@ -392,8 +405,11 @@ export default function WiringDiagram({
           `• Real-time rerouting when dragging components`
         );
       });
+
+      console.log('initDiagram completed successfully!');
     };
 
+    console.log('About to call initDiagram()...');
     initDiagram();
 
     // Cleanup function
