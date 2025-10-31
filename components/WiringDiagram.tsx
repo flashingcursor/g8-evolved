@@ -34,6 +34,7 @@ export default function WiringDiagram({
       },
       cellViewNamespace: shapes,
       interactive: true,
+      linkPinning: false,
       defaultConnector: { name: 'rounded' },
       defaultRouter: {
         name: 'manhattan',
