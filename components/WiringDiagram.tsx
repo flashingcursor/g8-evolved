@@ -12,13 +12,26 @@ interface WiringDiagramProps {
 
 export default function WiringDiagram({
   title = "Wiring Diagram",
-  width = 1000,
-  height = 700
+  width = 1600,
+  height = 1000
 }: WiringDiagramProps) {
   const paperContainer = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [useFallback, setUseFallback] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const routerRef = useRef<AvoidRouter | null>(null);
+
+  // Detect mobile viewport
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     console.log('WiringDiagram useEffect called, paperContainer.current:', !!paperContainer.current);
@@ -692,7 +705,20 @@ export default function WiringDiagram({
 
   return (
     <div className="space-y-4">
-      <h2 className="text-2xl font-bold">{title}</h2>
+      <h2 className="text-xl md:text-2xl font-bold">{title}</h2>
+      {isMobile && (
+        <div className="bg-blue-50 border border-blue-300 rounded-lg p-3">
+          <div className="flex items-start">
+            <div className="text-blue-600 text-xl mr-3">ℹ️</div>
+            <div>
+              <h4 className="font-bold text-blue-800 text-sm">Mobile Tip</h4>
+              <p className="text-xs text-blue-700 mt-1">
+                Pinch to zoom and drag to pan for the best viewing experience. Consider viewing on desktop for full detail.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
       {useFallback && (
         <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-3">
           <div className="flex items-start">
@@ -707,20 +733,25 @@ export default function WiringDiagram({
           </div>
         </div>
       )}
-      <div style={{ position: 'relative', width: `${width}px`, height: `${height}px`, margin: '0 auto' }}>
+      <div className="relative w-full overflow-x-auto overflow-y-hidden border border-gray-300 rounded-lg shadow-lg bg-white" style={{ maxWidth: '100%' }}>
         {isLoading && (
-          <div className="flex items-center justify-center border border-gray-300 rounded-lg shadow-lg absolute inset-0 bg-white z-10">
+          <div className="flex items-center justify-center absolute inset-0 bg-white z-10">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-              <p className="text-gray-600">Loading routing engine...</p>
+              <p className="text-gray-600 text-sm md:text-base">Loading routing engine...</p>
               <p className="text-xs text-gray-500 mt-2">Initializing diagram...</p>
             </div>
           </div>
         )}
         <div
           ref={paperContainer}
-          className="border border-gray-300 rounded-lg shadow-lg overflow-auto"
-          style={{ width: `${width}px`, height: `${height}px` }}
+          className="overflow-auto"
+          style={{
+            width: `${width}px`,
+            height: `${height}px`,
+            minWidth: isMobile ? '100%' : `${width}px`,
+            touchAction: 'pan-x pan-y pinch-zoom'
+          }}
         />
       </div>
       <div className="bg-blue-50 dark:bg-gray-800 p-4 rounded-lg">

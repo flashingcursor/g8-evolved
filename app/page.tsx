@@ -1,11 +1,11 @@
 export default function Home() {
   return (
-    <div className="space-y-8">
-      <section className="text-center py-12">
-        <h1 className="text-5xl font-bold mb-4 text-blue-600">
+    <div className="space-y-6 md:space-y-8">
+      <section className="text-center py-6 md:py-12">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 md:mb-4 text-blue-600 px-2">
           Yamaha G8 Golf Cart Conversion
         </h1>
-        <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+        <p className="text-base sm:text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto px-4">
           A comprehensive guide to upgrading and modernizing your Yamaha G8 golf cart
           with complete electronics replacement and enhanced features
         </p>
@@ -37,9 +37,9 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-gray-800 dark:to-gray-700 p-8 rounded-lg">
-        <h2 className="text-3xl font-bold mb-4">Project Overview</h2>
-        <div className="space-y-4 text-gray-700 dark:text-gray-300">
+      <section className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-gray-800 dark:to-gray-700 p-4 md:p-8 rounded-lg">
+        <h2 className="text-2xl md:text-3xl font-bold mb-3 md:mb-4">Project Overview</h2>
+        <div className="space-y-3 md:space-y-4 text-sm md:text-base text-gray-700 dark:text-gray-300">
           <p>
             This project documents the complete upgrade of a Yamaha G8 golf cart, replacing
             the old resistor-based speed control with a modern solid-state MOSFET controller

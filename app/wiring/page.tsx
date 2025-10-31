@@ -4,10 +4,10 @@ export default function WiringPage() {
   return (
     <div className="space-y-8">
       <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4 text-blue-600">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 md:mb-4 text-blue-600 px-2">
           Interactive Wiring Diagrams
         </h1>
-        <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+        <p className="text-base sm:text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto px-4">
           Explore the complete electrical system of the G8 conversion project.
           Click on components and connections for detailed information.
         </p>
@@ -29,11 +29,9 @@ export default function WiringPage() {
         </div>
       </div>
 
-      <section className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg overflow-x-auto">
+      <section className="bg-white dark:bg-gray-800 p-3 md:p-6 rounded-lg shadow-lg">
         <WiringDiagram
           title="Main Power Distribution - Complete System"
-          width={1600}
-          height={1000}
         />
       </section>
 

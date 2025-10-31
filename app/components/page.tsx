@@ -140,18 +140,18 @@ export default function ComponentsPage() {
   return (
     <div className="space-y-8">
       <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4 text-blue-600">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 md:mb-4 text-blue-600 px-2">
           Components & Parts List
         </h1>
-        <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+        <p className="text-base sm:text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto px-4">
           Complete breakdown of all components used in the G8 conversion project
         </p>
       </div>
 
       {components.map((category, idx) => (
-        <section key={idx} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
-          <h2 className="text-2xl font-bold mb-4 text-blue-600">{category.category}</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <section key={idx} className="bg-white dark:bg-gray-800 p-4 md:p-6 rounded-lg shadow-lg">
+          <h2 className="text-xl md:text-2xl font-bold mb-3 md:mb-4 text-blue-600">{category.category}</h2>
+          <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {category.items.map((item, itemIdx) => (
               <div key={itemIdx} className="border border-gray-200 dark:border-gray-700 p-4 rounded-lg">
                 <h3 className="font-bold text-lg mb-2">{item.name}</h3>

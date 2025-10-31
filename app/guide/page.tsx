@@ -84,10 +84,10 @@ export default function GuidePage() {
   return (
     <div className="space-y-8">
       <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4 text-blue-600">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 md:mb-4 text-blue-600 px-2">
           Build Guide
         </h1>
-        <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+        <p className="text-base sm:text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto px-4">
           Step-by-step guide to converting your Yamaha G8 golf cart
         </p>
       </div>
@@ -116,9 +116,9 @@ export default function GuidePage() {
         </div>
       </div>
 
-      <section className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
-        <h2 className="text-2xl font-bold mb-4 text-blue-600">Required Tools</h2>
-        <div className="grid md:grid-cols-3 gap-4">
+      <section className="bg-white dark:bg-gray-800 p-4 md:p-6 rounded-lg shadow-lg">
+        <h2 className="text-xl md:text-2xl font-bold mb-3 md:mb-4 text-blue-600">Required Tools</h2>
+        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
           <div>
             <h3 className="font-bold mb-2">Hand Tools</h3>
             <ul className="list-disc list-inside text-sm space-y-1">
@@ -152,15 +152,15 @@ export default function GuidePage() {
 
       <div className="space-y-6">
         {phases.map((phase, idx) => (
-          <section key={idx} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
-            <div className="flex items-start gap-4">
-              <div className="flex-shrink-0 w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-xl">
+          <section key={idx} className="bg-white dark:bg-gray-800 p-4 md:p-6 rounded-lg shadow-lg">
+            <div className="flex items-start gap-3 md:gap-4">
+              <div className="flex-shrink-0 w-10 h-10 md:w-12 md:h-12 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-lg md:text-xl">
                 {idx + 1}
               </div>
               <div className="flex-grow">
-                <div className="flex justify-between items-start mb-3">
-                  <h2 className="text-2xl font-bold text-blue-600">{phase.phase}</h2>
-                  <span className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-3 py-1 rounded-full text-sm font-semibold">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-3">
+                  <h2 className="text-lg md:text-2xl font-bold text-blue-600">{phase.phase}</h2>
+                  <span className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-3 py-1 rounded-full text-xs md:text-sm font-semibold inline-block w-fit">
                     {phase.duration}
                   </span>
                 </div>

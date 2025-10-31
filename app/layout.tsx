@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Navigation from "@/components/Navigation";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -14,23 +14,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="antialiased">
-        <nav className="bg-gray-800 text-white p-4">
-          <div className="container mx-auto flex justify-between items-center">
-            <h1 className="text-2xl font-bold">G8 Evolved</h1>
-            <ul className="flex space-x-6">
-              <li><Link href="/" className="hover:text-blue-400">Home</Link></li>
-              <li><Link href="/wiring" className="hover:text-blue-400">Wiring Diagrams</Link></li>
-              <li><Link href="/components" className="hover:text-blue-400">Components</Link></li>
-              <li><Link href="/guide" className="hover:text-blue-400">Build Guide</Link></li>
-            </ul>
-          </div>
-        </nav>
-        <main className="container mx-auto p-8">
+      <body className="antialiased min-h-screen flex flex-col">
+        <Navigation />
+        <main className="container mx-auto px-4 py-6 md:px-8 md:py-8 flex-grow">
           {children}
         </main>
-        <footer className="bg-gray-800 text-white text-center p-4 mt-12">
-          <p>&copy; 2025 G8 Evolved - Yamaha G8 Conversion Project</p>
+        <footer className="bg-gray-800 text-white text-center p-4 mt-auto">
+          <p className="text-sm md:text-base">&copy; 2025 G8 Evolved - Yamaha G8 Conversion Project</p>
         </footer>
       </body>
     </html>
