@@ -27,20 +27,12 @@ export default function WiringDiagram({
     let graph: dia.Graph;
 
     const initDiagram = async () => {
-      let useLibavoid = true;
-
-      try {
-        // Try to load the libavoid WASM library
-        console.log('Loading libavoid WASM...');
-        await AvoidRouter.load();
-        console.log('Libavoid WASM loaded successfully');
-      } catch (err) {
-        console.warn('Failed to load libavoid, falling back to Manhattan router:', err);
-        useLibavoid = false;
-        setUseFallback(true);
-      }
-
+      // Skip libavoid for now - use Manhattan router directly
+      const useLibavoid = false;
+      setUseFallback(true);
       setIsLoading(false);
+
+      console.log('Using Manhattan router (libavoid disabled)');
 
       // Create a graph and paper
       graph = new dia.Graph({}, { cellNamespace: shapes });
