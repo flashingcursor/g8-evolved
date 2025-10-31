@@ -396,11 +396,81 @@ export default function WiringDiagram({
         'accessory'
       );
 
+      // SAFETY COMPONENTS
+
+      // 12. Pre-charge Resistor (across SW180 main contacts)
+      const prechargeRes = createComponentWithPorts(
+        130, 280, 100, 50,
+        '1.5kΩ 10W\nPre-charge',
+        [
+          { id: 'precharge_in', group: 'top', attrs: { portLabel: { text: 'IN', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'precharge_out', group: 'bottom', attrs: { portLabel: { text: 'OUT', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } }
+        ],
+        'power'
+      );
+
+      // 13. SW180 Flyback Diode
+      const sw180Diode = createComponentWithPorts(
+        10, 360, 40, 50,
+        'D1\n1N4007',
+        [
+          { id: 'd1_cathode', group: 'top', attrs: { portLabel: { text: '+', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'd1_anode', group: 'bottom', attrs: { portLabel: { text: '-', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } }
+        ],
+        'control'
+      );
+
+      // 14. SW202 FWD Coil Flyback Diode
+      const sw202FwdDiode = createComponentWithPorts(
+        550, 250, 40, 40,
+        'D2',
+        [
+          { id: 'd2_cathode', group: 'right', attrs: { portLabel: { text: '+', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'd2_anode', group: 'left', attrs: { portLabel: { text: '-', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } }
+        ],
+        'control'
+      );
+
+      // 15. SW202 REV Coil Flyback Diode
+      const sw202RevDiode = createComponentWithPorts(
+        550, 300, 40, 40,
+        'D3',
+        [
+          { id: 'd3_cathode', group: 'right', attrs: { portLabel: { text: '+', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'd3_anode', group: 'left', attrs: { portLabel: { text: '-', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } }
+        ],
+        'control'
+      );
+
+      // 16. 5A Control Circuit Fuse
+      const controlFuse = createComponentWithPorts(
+        140, 470, 50, 60,
+        '5A\nFuse',
+        [
+          { id: 'ctrl_fuse_in', group: 'left', attrs: { portLabel: { text: 'IN', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'ctrl_fuse_out', group: 'right', attrs: { portLabel: { text: 'OUT', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } }
+        ],
+        'control'
+      );
+
+      // 17. 12V Accessory Fuse
+      const accessoryFuse = createComponentWithPorts(
+        840, 180, 80, 40,
+        '15A Fuse',
+        [
+          { id: 'acc_fuse_in', group: 'top', attrs: { portLabel: { text: 'IN', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'acc_fuse_out', group: 'bottom', attrs: { portLabel: { text: 'OUT', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } }
+        ],
+        'accessory'
+      );
+
       // Add all components to graph
       console.log('Adding components to graph...');
       graph.addCells([
         battery, fuse, sw180, controller, motor, sw202,
-        keySwitch, dirSwitch, throttle, dcConverter, accessories
+        keySwitch, dirSwitch, throttle, dcConverter, accessories,
+        prechargeRes, sw180Diode, sw202FwdDiode, sw202RevDiode,
+        controlFuse, accessoryFuse
       ]);
       console.log('Components added successfully');
 
@@ -470,6 +540,10 @@ export default function WiringDiagram({
         createPortLink(fuse, 'fuse_out', sw180, 'sw180_b_in', '#DC2626', 2),        // Red 2AWG
         createPortLink(sw180, 'sw180_b_out', controller, 'ctrl_b_plus', '#DC2626', 2), // Red 2AWG
 
+        // Pre-charge Resistor - In parallel with SW180 main contacts (10AWG)
+        createPortLink(fuse, 'fuse_out', prechargeRes, 'precharge_in', '#DC2626', 10),  // Red 10AWG - from fuse to resistor
+        createPortLink(prechargeRes, 'precharge_out', controller, 'ctrl_b_plus', '#DC2626', 10), // Red 10AWG - resistor to controller
+
         // Motor Circuit - 2AWG (Red for drive IN, Black for return OUT)
         // Path: Controller M- → Motor A1 → A2 → SW202 → F1/F2 (switched) → Motor F1/F2 → COM → Battery B-
         // RED = PWM source driving INTO motor armature
@@ -483,28 +557,47 @@ export default function WiringDiagram({
         // Ground/Negative Returns - 2AWG (Black)
         createPortLink(battery, 'b_minus', controller, 'ctrl_b_minus', '#000000', 2), // Black 2AWG
 
-        // Key Switch Power Input - 18AWG (Red)
-        createPortLink(battery, 'b_plus', keySwitch, 'key_batt', '#DC2626', 18),     // Red 18AWG (should ideally go through small fuse)
+        // Control Circuit with 5A Fuse - 18AWG
+        createPortLink(battery, 'b_plus', controlFuse, 'ctrl_fuse_in', '#DC2626', 18),  // Red 18AWG - Battery to fuse
+        createPortLink(controlFuse, 'ctrl_fuse_out', keySwitch, 'key_batt', '#DC2626', 18), // Red 18AWG - Fuse to key switch
 
-        // Control Signals - 18AWG (Various colors)
+        // SW180 Coil Circuit with Flyback Diode - 18AWG
         createPortLink(keySwitch, 'key_run', sw180, 'sw180_coil_pos', '#3B82F6', 18),    // Blue 18AWG
-        createPortLink(sw180, 'sw180_coil_neg', battery, 'b_minus', '#000000', 18),      // Black 18AWG - CRITICAL: Contactor coil ground
-        createPortLink(keySwitch, 'key_run', controller, 'ctrl_ksi', '#3B82F6', 18),     // Blue 18AWG
+        createPortLink(sw180, 'sw180_coil_neg', battery, 'b_minus', '#000000', 18),      // Black 18AWG - coil ground
+        // SW180 Flyback Diode (across coil, cathode to +, anode to -)
+        createPortLink(keySwitch, 'key_run', sw180Diode, 'd1_cathode', '#3B82F6', 20),   // Connect cathode to coil +
+        createPortLink(sw180Diode, 'd1_anode', battery, 'b_minus', '#000000', 20),       // Connect anode to coil -
+
+        // Controller KSI with High-Pedal Disable Interlock - 18AWG
+        // KSI only energizes if throttle microswitch is closed (pedal released)
+        createPortLink(keySwitch, 'key_run', throttle, 'throttle_sw', '#3B82F6', 18),    // Blue 18AWG - RUN to throttle SW
+        createPortLink(throttle, 'throttle_sw', controller, 'ctrl_ksi', '#3B82F6', 18),  // Blue 18AWG - throttle SW to KSI (interlock)
+
+        // Direction Switch Circuit - 18AWG
         createPortLink(keySwitch, 'key_acc', dirSwitch, 'dir_in', '#DC2626', 18),        // Red 18AWG - Powers direction switch
+
+        // SW202 FWD Coil with Flyback Diode - 18AWG
         createPortLink(dirSwitch, 'dir_fwd', sw202, 'sw202_fwd_coil', '#EAB308', 18),    // Yellow 18AWG
+        createPortLink(dirSwitch, 'dir_fwd', sw202FwdDiode, 'd2_cathode', '#EAB308', 20), // Diode cathode to coil +
+        createPortLink(sw202FwdDiode, 'd2_anode', battery, 'b_minus', '#000000', 20),    // Diode anode to ground
+
+        // SW202 REV Coil with Flyback Diode - 18AWG
         createPortLink(dirSwitch, 'dir_rev', sw202, 'sw202_rev_coil', '#F97316', 18),    // Orange 18AWG
+        createPortLink(dirSwitch, 'dir_rev', sw202RevDiode, 'd3_cathode', '#F97316', 20), // Diode cathode to coil +
+        createPortLink(sw202RevDiode, 'd3_anode', battery, 'b_minus', '#000000', 20),    // Diode anode to ground
 
-        // Throttle Connections - 20AWG (Low current signals)
+        // Throttle Potentiometer Connections - 20AWG
         createPortLink(controller, 'ctrl_pot_high', throttle, 'throttle_5v', '#DC2626', 20),    // Red 20AWG (5V)
-        createPortLink(throttle, 'throttle_wiper', controller, 'ctrl_pot_wiper', '#9CA3AF', 20), // Gray 20AWG (signal - represents white wire)
+        createPortLink(throttle, 'throttle_wiper', controller, 'ctrl_pot_wiper', '#9CA3AF', 20), // Gray 20AWG (signal)
         createPortLink(controller, 'ctrl_pot_low', throttle, 'throttle_gnd', '#000000', 20),     // Black 20AWG (ground)
-        createPortLink(throttle, 'throttle_sw', controller, 'ctrl_enable', '#22C55E', 20),       // Green 20AWG (enable)
+        createPortLink(controller, 'ctrl_enable', battery, 'b_minus', '#000000', 20),            // Black 20AWG - Enable to ground
 
-        // 12V Accessory Circuit - 10AWG (DC-DC input), 14AWG (output)
-        createPortLink(battery, 'b_plus', dcConverter, 'dc_36v_pos', '#DC2626', 10),      // Red 10AWG
-        createPortLink(battery, 'b_minus', dcConverter, 'dc_36v_neg', '#000000', 10),     // Black 10AWG
-        createPortLink(dcConverter, 'dc_12v_pos', accessories, 'acc_12v_pos', '#DC2626', 14), // Red 14AWG
-        createPortLink(dcConverter, 'dc_12v_neg', accessories, 'acc_12v_neg', '#000000', 14), // Black 14AWG
+        // 12V Accessory Circuit with Fuse - 10AWG input, 14AWG output
+        createPortLink(battery, 'b_plus', dcConverter, 'dc_36v_pos', '#DC2626', 10),     // Red 10AWG
+        createPortLink(battery, 'b_minus', dcConverter, 'dc_36v_neg', '#000000', 10),    // Black 10AWG
+        createPortLink(dcConverter, 'dc_12v_pos', accessoryFuse, 'acc_fuse_in', '#DC2626', 14),  // Red 14AWG - Converter to fuse
+        createPortLink(accessoryFuse, 'acc_fuse_out', accessories, 'acc_12v_pos', '#DC2626', 14), // Red 14AWG - Fuse to accessories
+        createPortLink(dcConverter, 'dc_12v_neg', accessories, 'acc_12v_neg', '#000000', 14),    // Black 14AWG
       ];
 
       // Add all links to graph
