@@ -21,7 +21,14 @@ export class AvoidRouter {
     static async load() {
         // Note: load() accepts a filepath to the libavoid.wasm file.
         // The WASM file must be served from the public directory
-        await AvoidLib.load('/libavoid.wasm');
+        try {
+            console.log('Attempting to load WASM from /libavoid.wasm');
+            await AvoidLib.load('/libavoid.wasm');
+            console.log('WASM loaded successfully');
+        } catch (error) {
+            console.error('Failed to load WASM:', error);
+            throw new Error(`Failed to load libavoid WASM: ${error instanceof Error ? error.message : String(error)}`);
+        }
     }
 
     constructor(graph: dia.Graph, options: any = {}) {
