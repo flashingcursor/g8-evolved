@@ -34,12 +34,27 @@ export default function WiringDiagram({
     const initDiagram = async () => {
       console.log('initDiagram called');
 
-      // Skip libavoid for now - use Manhattan router directly
-      const useLibavoid = false;
-      setUseFallback(true);
-      setIsLoading(false);
+      let useLibavoid = true;
 
-      console.log('Using Manhattan router (libavoid disabled)');
+      try {
+        // Try to load the libavoid WASM library with timeout
+        console.log('Attempting to load libavoid WASM from /libavoid.wasm');
+
+        const loadPromise = AvoidRouter.load();
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('WASM load timeout after 10 seconds')), 10000)
+        );
+
+        await Promise.race([loadPromise, timeoutPromise]);
+        console.log('✓ Libavoid WASM loaded successfully!');
+        setUseFallback(false);
+      } catch (err) {
+        console.warn('⚠ Failed to load libavoid, falling back to Manhattan router:', err);
+        useLibavoid = false;
+        setUseFallback(true);
+      }
+
+      setIsLoading(false);
 
       // Create a graph and paper
       console.log('Creating graph...');
