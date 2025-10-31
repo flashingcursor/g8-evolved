@@ -20,7 +20,8 @@ export class AvoidRouter {
 
     static async load() {
         // Note: load() accepts a filepath to the libavoid.wasm file.
-        await AvoidLib.load();
+        // The WASM file must be served from the public directory
+        await AvoidLib.load('/libavoid.wasm');
     }
 
     constructor(graph: dia.Graph, options: any = {}) {

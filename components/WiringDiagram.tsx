@@ -17,6 +17,7 @@ export default function WiringDiagram({
 }: WiringDiagramProps) {
   const paperContainer = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const routerRef = useRef<AvoidRouter | null>(null);
 
   useEffect(() => {
@@ -26,9 +27,18 @@ export default function WiringDiagram({
     let graph: dia.Graph;
 
     const initDiagram = async () => {
-      // Load the libavoid WASM library
-      await AvoidRouter.load();
-      setIsLoading(false);
+      try {
+        // Load the libavoid WASM library
+        console.log('Loading libavoid WASM...');
+        await AvoidRouter.load();
+        console.log('Libavoid WASM loaded successfully');
+        setIsLoading(false);
+      } catch (err) {
+        console.error('Failed to load libavoid:', err);
+        setError(`Failed to load libavoid: ${err instanceof Error ? err.message : String(err)}`);
+        setIsLoading(false);
+        return;
+      }
 
       // Create a graph and paper
       graph = new dia.Graph({}, { cellNamespace: shapes });
@@ -392,11 +402,21 @@ export default function WiringDiagram({
   return (
     <div className="space-y-4">
       <h2 className="text-2xl font-bold">{title}</h2>
-      {isLoading ? (
+      {error ? (
+        <div className="flex items-center justify-center border border-red-300 bg-red-50 rounded-lg shadow-lg mx-auto p-8" style={{ width: `${width}px`, height: `${height}px` }}>
+          <div className="text-center">
+            <div className="text-red-600 text-6xl mb-4">⚠️</div>
+            <h3 className="text-xl font-bold text-red-800 mb-2">Failed to Load Routing Engine</h3>
+            <p className="text-red-700 mb-4">{error}</p>
+            <p className="text-sm text-gray-600">Check the browser console for more details.</p>
+          </div>
+        </div>
+      ) : isLoading ? (
         <div className="flex items-center justify-center border border-gray-300 rounded-lg shadow-lg mx-auto" style={{ width: `${width}px`, height: `${height}px` }}>
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
             <p className="text-gray-600">Loading libavoid routing engine...</p>
+            <p className="text-xs text-gray-500 mt-2">Loading WASM module...</p>
           </div>
         </div>
       ) : (
