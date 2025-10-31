@@ -202,9 +202,9 @@ export default function WiringDiagram({
         });
       };
 
-      // 1. Battery Pack - 36V LiFePO4
+      // 1. Battery Pack - 36V LiFePO4 (Top-left area)
       const battery = createComponentWithPorts(
-        50, 50, 140, 80,
+        60, 60, 160, 90,
         '36V Battery\n100Ah LiFePO₄',
         [
           { id: 'b_plus', group: 'right', attrs: { portLabel: { text: 'B+', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
@@ -212,9 +212,9 @@ export default function WiringDiagram({
         ]
       );
 
-      // 2. 250A ANL Fuse
+      // 2. 250A ANL Fuse (Below battery)
       const fuse = createComponentWithPorts(
-        50, 180, 140, 60,
+        60, 200, 160, 70,
         '250A ANL Fuse',
         [
           { id: 'fuse_in', group: 'top', attrs: { portLabel: { text: 'IN', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
@@ -222,9 +222,9 @@ export default function WiringDiagram({
         ]
       );
 
-      // 3. SW180 Main Contactor
+      // 3. SW180 Main Contactor (Below fuse)
       const sw180 = createComponentWithPorts(
-        50, 290, 140, 80,
+        60, 330, 160, 90,
         'SW180\nMain Contactor',
         [
           { id: 'sw180_b_in', group: 'top', attrs: { portLabel: { text: 'B+', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
@@ -234,9 +234,9 @@ export default function WiringDiagram({
         ]
       );
 
-      // 4. Curtis 1204M Controller
+      // 4. Curtis 1204M Controller (Center)
       const controller = createComponentWithPorts(
-        280, 180, 160, 100,
+        320, 200, 180, 110,
         'Curtis 1204M\nController',
         [
           { id: 'ctrl_b_plus', group: 'left', attrs: { portLabel: { text: 'B+', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
@@ -250,9 +250,9 @@ export default function WiringDiagram({
         ]
       );
 
-      // 5. DC Series Motor
+      // 5. DC Series Motor (Top-right area)
       const motor = createComponentWithPorts(
-        520, 80, 140, 100,
+        600, 60, 160, 110,
         'DC Series Motor',
         [
           { id: 'motor_a1', group: 'left', attrs: { portLabel: { text: 'A1', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
@@ -262,9 +262,9 @@ export default function WiringDiagram({
         ]
       );
 
-      // 6. SW202 Reversing Contactor
+      // 6. SW202 Reversing Contactor (Below motor)
       const sw202 = createComponentWithPorts(
-        520, 240, 140, 100,
+        600, 230, 160, 110,
         'SW202\nReversing',
         [
           { id: 'sw202_a2', group: 'top', attrs: { portLabel: { text: 'A2', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
@@ -276,9 +276,9 @@ export default function WiringDiagram({
         ]
       );
 
-      // 7. Key Switch (3-position)
+      // 7. Key Switch (Bottom-left area)
       const keySwitch = createComponentWithPorts(
-        50, 450, 120, 80,
+        60, 500, 140, 90,
         'Key Switch\n3-Position',
         [
           { id: 'key_batt', group: 'left', attrs: { portLabel: { text: 'BAT', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
@@ -287,9 +287,9 @@ export default function WiringDiagram({
         ]
       );
 
-      // 8. Direction Switch
+      // 8. Direction Switch (Bottom-center area)
       const dirSwitch = createComponentWithPorts(
-        230, 450, 120, 80,
+        280, 500, 140, 90,
         'Direction\nSwitch',
         [
           { id: 'dir_in', group: 'left', attrs: { portLabel: { text: 'IN', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
@@ -298,9 +298,9 @@ export default function WiringDiagram({
         ]
       );
 
-      // 9. PB-6 Throttle Pot Box
+      // 9. PB-6 Throttle Pot Box (Bottom-right area)
       const throttle = createComponentWithPorts(
-        410, 450, 120, 80,
+        500, 500, 140, 90,
         'PB-6 Throttle\nPot Box',
         [
           { id: 'throttle_5v', group: 'top', attrs: { portLabel: { text: '5V', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
@@ -310,9 +310,9 @@ export default function WiringDiagram({
         ]
       );
 
-      // 10. DC-DC Converter
+      // 10. DC-DC Converter (Far right, top)
       const dcConverter = createComponentWithPorts(
-        750, 80, 140, 80,
+        840, 60, 160, 90,
         '36V→12V\nConverter',
         [
           { id: 'dc_36v_pos', group: 'left', attrs: { portLabel: { text: '36+', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
@@ -322,9 +322,9 @@ export default function WiringDiagram({
         ]
       );
 
-      // 11. 12V Accessories
+      // 11. 12V Accessories (Far right, below converter)
       const accessories = createComponentWithPorts(
-        750, 220, 140, 60,
+        840, 210, 160, 70,
         '12V Accessories\nLights/Horn',
         [
           { id: 'acc_12v_pos', group: 'top', attrs: { portLabel: { text: '+', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
