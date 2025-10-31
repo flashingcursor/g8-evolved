@@ -35,7 +35,18 @@ export default function WiringDiagram({
       cellViewNamespace: shapes,
       interactive: true,
       defaultConnector: { name: 'rounded' },
-      defaultRouter: { name: 'orthogonal' },
+      defaultRouter: {
+        name: 'manhattan',
+        args: {
+          step: 10,
+          padding: 20,
+          maximumLoops: 2000,
+          maxAllowedDirectionChange: 90,
+          perpendicular: true,
+          excludeEnds: [],
+          excludeTypes: ['standard.Text']
+        }
+      },
     });
 
     // Define port groups for consistent styling
@@ -339,7 +350,7 @@ export default function WiringDiagram({
       keySwitch, dirSwitch, throttle, dcConverter, accessories
     ]);
 
-    // Create port-to-port connections
+    // Create port-to-port connections with smart routing
     const createPortLink = (
       sourceElement: dia.Element,
       sourcePort: string,
@@ -347,9 +358,14 @@ export default function WiringDiagram({
       targetPort: string,
       label: string,
       color: string = '#4b5563',
-      strokeWidth: number = 3
+      strokeWidth: number = 3,
+      routerArgs?: {
+        startDirections?: string[];
+        endDirections?: string[];
+        padding?: number;
+      }
     ) => {
-      return new shapes.standard.Link({
+      const link = new shapes.standard.Link({
         source: { id: sourceElement.id, port: sourcePort },
         target: { id: targetElement.id, port: targetPort },
         attrs: {
@@ -388,42 +404,121 @@ export default function WiringDiagram({
           }
         }] : []
       });
+
+      // Apply custom router args if provided
+      if (routerArgs) {
+        link.router('manhattan', {
+          step: 10,
+          padding: routerArgs.padding || 20,
+          maximumLoops: 2000,
+          startDirections: routerArgs.startDirections || ['right', 'left', 'top', 'bottom'],
+          endDirections: routerArgs.endDirections || ['right', 'left', 'top', 'bottom'],
+          excludeTypes: ['standard.Text']
+        });
+      }
+
+      return link;
     };
 
-    // Main Power Path (RED - thick)
+    // Main Power Path (RED - thick) with smart routing
     const powerLinks = [
-      createPortLink(battery, 'b_plus', fuse, 'fuse_in', '2AWG', '#dc2626', 4),
-      createPortLink(fuse, 'fuse_out', sw180, 'sw180_b_in', '250A', '#dc2626', 4),
-      createPortLink(sw180, 'sw180_b_out', controller, 'ctrl_b_plus', 'B+', '#dc2626', 4),
-      createPortLink(controller, 'ctrl_m_minus', motor, 'motor_a1', 'M-', '#f59e0b', 4),
-      createPortLink(motor, 'motor_a2', sw202, 'sw202_a2', 'A2', '#f59e0b', 4),
-      createPortLink(sw202, 'sw202_f1', motor, 'motor_f1', 'F1', '#6366f1', 3),
-      createPortLink(sw202, 'sw202_f2', motor, 'motor_f2', 'F2', '#6366f1', 3),
+      createPortLink(battery, 'b_plus', fuse, 'fuse_in', '2AWG', '#dc2626', 4, {
+        startDirections: ['right'],
+        endDirections: ['left']
+      }),
+      createPortLink(fuse, 'fuse_out', sw180, 'sw180_b_in', '250A', '#dc2626', 4, {
+        startDirections: ['right'],
+        endDirections: ['left']
+      }),
+      createPortLink(sw180, 'sw180_b_out', controller, 'ctrl_b_plus', 'B+', '#dc2626', 4, {
+        startDirections: ['right'],
+        endDirections: ['left'],
+        padding: 25
+      }),
+      createPortLink(controller, 'ctrl_m_minus', motor, 'motor_a1', 'M-', '#f59e0b', 4, {
+        startDirections: ['right'],
+        endDirections: ['bottom'],
+        padding: 25
+      }),
+      createPortLink(motor, 'motor_a2', sw202, 'sw202_a2', 'A2', '#f59e0b', 4, {
+        startDirections: ['bottom'],
+        endDirections: ['left']
+      }),
+      createPortLink(sw202, 'sw202_f1', motor, 'motor_f1', 'F1', '#6366f1', 3, {
+        startDirections: ['right'],
+        endDirections: ['bottom']
+      }),
+      createPortLink(sw202, 'sw202_f2', motor, 'motor_f2', 'F2', '#6366f1', 3, {
+        startDirections: ['right'],
+        endDirections: ['bottom']
+      }),
     ];
 
     // Ground/Negative Returns (BLACK - thick)
     const groundLinks = [
-      createPortLink(battery, 'b_minus', controller, 'ctrl_b_minus', 'B-', '#1f2937', 4),
+      createPortLink(battery, 'b_minus', controller, 'ctrl_b_minus', 'B-', '#1f2937', 4, {
+        startDirections: ['right'],
+        endDirections: ['left'],
+        padding: 30
+      }),
     ];
 
-    // Control Signals (BLUE - thin)
+    // Control Signals (BLUE - thin) with smart routing
     const controlLinks = [
-      createPortLink(keySwitch, 'key_run', sw180, 'sw180_coil_pos', 'KSI', '#3b82f6', 2),
-      createPortLink(keySwitch, 'key_run', controller, 'ctrl_ksi', 'KSI', '#3b82f6', 2),
-      createPortLink(dirSwitch, 'dir_fwd', sw202, 'sw202_fwd_coil', 'FWD', '#3b82f6', 2),
-      createPortLink(dirSwitch, 'dir_rev', sw202, 'sw202_rev_coil', 'REV', '#3b82f6', 2),
-      createPortLink(controller, 'ctrl_pot_high', throttle, 'throttle_5v', '5V', '#14b8a6', 2),
-      createPortLink(throttle, 'throttle_wiper', controller, 'ctrl_pot_wiper', 'POT', '#14b8a6', 2),
-      createPortLink(controller, 'ctrl_pot_low', throttle, 'throttle_gnd', 'GND', '#14b8a6', 2),
-      createPortLink(throttle, 'throttle_sw', controller, 'ctrl_enable', 'EN', '#14b8a6', 2),
+      createPortLink(keySwitch, 'key_run', sw180, 'sw180_coil_pos', 'KSI', '#3b82f6', 2, {
+        startDirections: ['right', 'top'],
+        endDirections: ['left', 'bottom']
+      }),
+      createPortLink(keySwitch, 'key_run', controller, 'ctrl_ksi', 'KSI', '#3b82f6', 2, {
+        startDirections: ['right', 'top'],
+        endDirections: ['left', 'bottom']
+      }),
+      createPortLink(dirSwitch, 'dir_fwd', sw202, 'sw202_fwd_coil', 'FWD', '#3b82f6', 2, {
+        startDirections: ['right', 'top'],
+        endDirections: ['left', 'bottom']
+      }),
+      createPortLink(dirSwitch, 'dir_rev', sw202, 'sw202_rev_coil', 'REV', '#3b82f6', 2, {
+        startDirections: ['right', 'top'],
+        endDirections: ['left', 'bottom']
+      }),
+      createPortLink(controller, 'ctrl_pot_high', throttle, 'throttle_5v', '5V', '#14b8a6', 2, {
+        startDirections: ['right', 'bottom'],
+        endDirections: ['left', 'top']
+      }),
+      createPortLink(throttle, 'throttle_wiper', controller, 'ctrl_pot_wiper', 'POT', '#14b8a6', 2, {
+        startDirections: ['right', 'top'],
+        endDirections: ['left', 'bottom']
+      }),
+      createPortLink(controller, 'ctrl_pot_low', throttle, 'throttle_gnd', 'GND', '#14b8a6', 2, {
+        startDirections: ['right', 'bottom'],
+        endDirections: ['left', 'top']
+      }),
+      createPortLink(throttle, 'throttle_sw', controller, 'ctrl_enable', 'EN', '#14b8a6', 2, {
+        startDirections: ['right', 'top'],
+        endDirections: ['left', 'bottom']
+      }),
     ];
 
-    // 12V Accessory Circuit (PURPLE)
+    // 12V Accessory Circuit (PURPLE) with smart routing
     const accessoryLinks = [
-      createPortLink(battery, 'b_plus', dcConverter, 'dc_36v_pos', '36V', '#8b5cf6', 3),
-      createPortLink(battery, 'b_minus', dcConverter, 'dc_36v_neg', 'GND', '#8b5cf6', 3),
-      createPortLink(dcConverter, 'dc_12v_pos', accessories, 'acc_12v_pos', '12V', '#a855f7', 2),
-      createPortLink(dcConverter, 'dc_12v_neg', accessories, 'acc_12v_neg', 'GND', '#a855f7', 2),
+      createPortLink(battery, 'b_plus', dcConverter, 'dc_36v_pos', '36V', '#8b5cf6', 3, {
+        startDirections: ['right'],
+        endDirections: ['left'],
+        padding: 25
+      }),
+      createPortLink(battery, 'b_minus', dcConverter, 'dc_36v_neg', 'GND', '#8b5cf6', 3, {
+        startDirections: ['right'],
+        endDirections: ['left'],
+        padding: 25
+      }),
+      createPortLink(dcConverter, 'dc_12v_pos', accessories, 'acc_12v_pos', '12V', '#a855f7', 2, {
+        startDirections: ['right', 'bottom'],
+        endDirections: ['left', 'top']
+      }),
+      createPortLink(dcConverter, 'dc_12v_neg', accessories, 'acc_12v_neg', 'GND', '#a855f7', 2, {
+        startDirections: ['right', 'bottom'],
+        endDirections: ['left', 'top']
+      }),
     ];
 
     // Add all links to graph
@@ -480,7 +575,8 @@ export default function WiringDiagram({
         <ul className="list-disc list-inside space-y-1 text-sm">
           <li>Click on components to view all port definitions</li>
           <li>Click on connections to see source and destination ports</li>
-          <li>Drag components to rearrange the diagram</li>
+          <li>Drag components to rearrange - connections automatically re-route!</li>
+          <li><strong>Smart Routing:</strong> Manhattan algorithm avoids obstacles with 20px padding</li>
           <li>Port colors: Red = Power, Blue = Control signals, Orange = Motor</li>
         </ul>
         <div className="mt-3 pt-3 border-t border-gray-300 dark:border-gray-600">
@@ -490,6 +586,15 @@ export default function WiringDiagram({
             <div><strong>SW202:</strong> FWD, REV coils for direction</div>
             <div><strong>Controller:</strong> B+/B-, M-, KSI, POT, EN</div>
             <div><strong>Throttle:</strong> 5V, Wiper, GND, Microswitch</div>
+          </div>
+        </div>
+        <div className="mt-3 pt-3 border-t border-gray-300 dark:border-gray-600">
+          <h4 className="font-bold mb-1 text-sm">Routing Features:</h4>
+          <div className="text-xs space-y-1">
+            <div>• Uses JointJS v4 Manhattan router for intelligent path finding</div>
+            <div>• Automatically avoids all component obstacles</div>
+            <div>• Connections re-route in real-time when components are moved</div>
+            <div>• Configurable padding (20-30px) prevents wire overlap</div>
           </div>
         </div>
       </div>
