@@ -471,17 +471,24 @@ export default function WiringDiagram({
         createPortLink(sw180, 'sw180_b_out', controller, 'ctrl_b_plus', '#DC2626', 2), // Red 2AWG
 
         // Motor Circuit - 2AWG (Black for motor connections)
+        // Path: Controller M- → Motor A1 → A2 → SW202 → F1/F2 (switched) → Motor F1/F2 → COM → Battery B-
         createPortLink(controller, 'ctrl_m_minus', motor, 'motor_a1', '#000000', 2), // Black 2AWG
         createPortLink(motor, 'motor_a2', sw202, 'sw202_a2', '#000000', 2),          // Black 2AWG
         createPortLink(sw202, 'sw202_f1', motor, 'motor_f1', '#000000', 2),          // Black 2AWG
         createPortLink(sw202, 'sw202_f2', motor, 'motor_f2', '#000000', 2),          // Black 2AWG
+        createPortLink(sw202, 'sw202_common', battery, 'b_minus', '#000000', 2),     // Black 2AWG - CRITICAL: Completes motor circuit
 
         // Ground/Negative Returns - 2AWG (Black)
         createPortLink(battery, 'b_minus', controller, 'ctrl_b_minus', '#000000', 2), // Black 2AWG
 
+        // Key Switch Power Input - 18AWG (Red)
+        createPortLink(battery, 'b_plus', keySwitch, 'key_batt', '#DC2626', 18),     // Red 18AWG (should ideally go through small fuse)
+
         // Control Signals - 18AWG (Various colors)
         createPortLink(keySwitch, 'key_run', sw180, 'sw180_coil_pos', '#3B82F6', 18),    // Blue 18AWG
+        createPortLink(sw180, 'sw180_coil_neg', battery, 'b_minus', '#000000', 18),      // Black 18AWG - CRITICAL: Contactor coil ground
         createPortLink(keySwitch, 'key_run', controller, 'ctrl_ksi', '#3B82F6', 18),     // Blue 18AWG
+        createPortLink(keySwitch, 'key_acc', dirSwitch, 'dir_in', '#DC2626', 18),        // Red 18AWG - Powers direction switch
         createPortLink(dirSwitch, 'dir_fwd', sw202, 'sw202_fwd_coil', '#EAB308', 18),    // Yellow 18AWG
         createPortLink(dirSwitch, 'dir_rev', sw202, 'sw202_rev_coil', '#F97316', 18),    // Orange 18AWG
 
