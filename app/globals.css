@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* JointJS paper styling */
+.joint-paper {
+  border: 1px solid #e5e7eb;
+  background-color: #f9fafb;
+}
+
+.joint-element {
+  cursor: pointer;
+}
+
+.joint-link .connection {
+  stroke: #4b5563;
+  stroke-width: 2px;
+}
+
+.joint-link .connection:hover {
+  stroke: #2563eb;
+  stroke-width: 3px;
+}
