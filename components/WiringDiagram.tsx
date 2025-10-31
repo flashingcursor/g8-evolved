@@ -121,7 +121,7 @@ export default function WiringDiagram({
           label: {
             position: {
               name: 'top',
-              args: { y: -15 }
+              args: { y: 12 }  // Inside: move down into component
             },
             markup: portLabelMarkup
           }
@@ -132,7 +132,7 @@ export default function WiringDiagram({
           label: {
             position: {
               name: 'bottom',
-              args: { y: 15 }
+              args: { y: -12 }  // Inside: move up into component
             },
             markup: portLabelMarkup
           }
@@ -143,7 +143,7 @@ export default function WiringDiagram({
           label: {
             position: {
               name: 'right',
-              args: { x: 15 }
+              args: { x: -12 }  // Inside: move left into component
             },
             markup: portLabelMarkup
           }
@@ -154,7 +154,7 @@ export default function WiringDiagram({
           label: {
             position: {
               name: 'left',
-              args: { x: -15 }
+              args: { x: 12 }  // Inside: move right into component
             },
             markup: portLabelMarkup
           }
