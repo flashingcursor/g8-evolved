@@ -440,21 +440,22 @@ export default function WiringDiagram({
           </div>
         </div>
       )}
-      {isLoading ? (
-        <div className="flex items-center justify-center border border-gray-300 rounded-lg shadow-lg mx-auto" style={{ width: `${width}px`, height: `${height}px` }}>
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading routing engine...</p>
-            <p className="text-xs text-gray-500 mt-2">Initializing diagram...</p>
+      <div style={{ position: 'relative', width: `${width}px`, height: `${height}px`, margin: '0 auto' }}>
+        {isLoading && (
+          <div className="flex items-center justify-center border border-gray-300 rounded-lg shadow-lg absolute inset-0 bg-white z-10">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <p className="text-gray-600">Loading routing engine...</p>
+              <p className="text-xs text-gray-500 mt-2">Initializing diagram...</p>
+            </div>
           </div>
-        </div>
-      ) : (
+        )}
         <div
           ref={paperContainer}
-          className="border border-gray-300 rounded-lg shadow-lg mx-auto overflow-auto"
+          className="border border-gray-300 rounded-lg shadow-lg overflow-auto"
           style={{ width: `${width}px`, height: `${height}px` }}
         />
-      )}
+      </div>
       <div className="bg-blue-50 dark:bg-gray-800 p-4 rounded-lg">
         <h3 className="font-bold mb-2">Interactive Features:</h3>
         <ul className="list-disc list-inside space-y-1 text-sm">
