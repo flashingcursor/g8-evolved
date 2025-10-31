@@ -29,11 +29,11 @@ export default function WiringPage() {
         </div>
       </div>
 
-      <section className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+      <section className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg overflow-x-auto">
         <WiringDiagram
           title="Main Power Distribution - Complete System"
-          width={1000}
-          height={700}
+          width={1600}
+          height={1000}
         />
       </section>
 

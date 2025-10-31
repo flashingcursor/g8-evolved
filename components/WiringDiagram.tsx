@@ -255,11 +255,13 @@ export default function WiringDiagram({
         });
       };
 
-      // REDESIGNED LAYOUT - Wide horizontal spacing for clean routing
+      // SPACIOUS LAYOUT - Maximum spacing for clean routing on 1600x1000 canvas
 
-      // 1. Battery Pack (Far left, top)
+      // ROW 1: MAIN POWER PATH (Top)
+
+      // 1. Battery Pack (Far left)
       const battery = createComponentWithPorts(
-        50, 40, 140, 80,
+        50, 50, 150, 90,
         '36V Battery\n100Ah LiFePO₄',
         [
           { id: 'b_plus', group: 'right', attrs: { portLabel: { text: 'B+', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
@@ -268,9 +270,9 @@ export default function WiringDiagram({
         'power'
       );
 
-      // 2. 250A ANL Fuse (Right of battery)
+      // 2. 250A ANL Fuse
       const fuse = createComponentWithPorts(
-        240, 40, 120, 60,
+        280, 60, 130, 70,
         '250A ANL Fuse',
         [
           { id: 'fuse_in', group: 'left', attrs: { portLabel: { text: 'IN', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
@@ -279,9 +281,9 @@ export default function WiringDiagram({
         'power'
       );
 
-      // 3. SW180 Main Contactor (Right of fuse)
+      // 3. SW180 Main Contactor
       const sw180 = createComponentWithPorts(
-        410, 40, 140, 80,
+        490, 50, 150, 90,
         'SW180\nMain Contactor',
         [
           { id: 'sw180_b_in', group: 'left', attrs: { portLabel: { text: 'B+', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
@@ -292,9 +294,9 @@ export default function WiringDiagram({
         'power'
       );
 
-      // 4. Curtis 1204M Controller (Center-right)
+      // 4. Curtis 1204M Controller
       const controller = createComponentWithPorts(
-        600, 40, 170, 100,
+        800, 50, 180, 110,
         'Curtis 1204M\nController',
         [
           { id: 'ctrl_b_plus', group: 'left', attrs: { portLabel: { text: 'B+', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
@@ -309,9 +311,9 @@ export default function WiringDiagram({
         'motor'
       );
 
-      // 5. DC Series Motor (Top right)
+      // 5. DC Series Motor
       const motor = createComponentWithPorts(
-        820, 40, 140, 100,
+        1090, 50, 150, 110,
         'DC Series Motor',
         [
           { id: 'motor_a1', group: 'left', attrs: { portLabel: { text: 'A1', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
@@ -322,9 +324,46 @@ export default function WiringDiagram({
         'motor'
       );
 
-      // 6. SW202 Reversing Contactor (Below motor)
+      // 6. DC-DC Converter (Far right)
+      const dcConverter = createComponentWithPorts(
+        1370, 50, 150, 90,
+        '36V→12V\nConverter',
+        [
+          { id: 'dc_36v_pos', group: 'left', attrs: { portLabel: { text: '36+', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'dc_36v_neg', group: 'left', attrs: { portLabel: { text: '36-', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'dc_12v_pos', group: 'bottom', attrs: { portLabel: { text: '12+', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'dc_12v_neg', group: 'bottom', attrs: { portLabel: { text: '12-', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } }
+        ],
+        'accessory'
+      );
+
+      // ROW 2: SAFETY COMPONENTS (Middle-upper)
+
+      // 7. Pre-charge Resistor (below SW180)
+      const prechargeRes = createComponentWithPorts(
+        490, 190, 110, 60,
+        '1.5kΩ 10W\nPre-charge',
+        [
+          { id: 'precharge_in', group: 'left', attrs: { portLabel: { text: 'IN', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'precharge_out', group: 'right', attrs: { portLabel: { text: 'OUT', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } }
+        ],
+        'power'
+      );
+
+      // 8. 5A Control Circuit Fuse
+      const controlFuse = createComponentWithPorts(
+        50, 240, 60, 70,
+        '5A Fuse',
+        [
+          { id: 'ctrl_fuse_in', group: 'top', attrs: { portLabel: { text: 'IN', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'ctrl_fuse_out', group: 'bottom', attrs: { portLabel: { text: 'OUT', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } }
+        ],
+        'control'
+      );
+
+      // 9. SW202 Reversing Contactor (below motor)
       const sw202 = createComponentWithPorts(
-        820, 190, 140, 100,
+        1090, 280, 150, 110,
         'SW202\nReversing',
         [
           { id: 'sw202_a2', group: 'top', attrs: { portLabel: { text: 'A2', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
@@ -337,9 +376,68 @@ export default function WiringDiagram({
         'motor'
       );
 
-      // 7. Key Switch (Bottom left)
+      // 10. 15A Accessory Fuse
+      const accessoryFuse = createComponentWithPorts(
+        1410, 180, 80, 30,
+        '15A Fuse',
+        [
+          { id: 'acc_fuse_in', group: 'top', attrs: { portLabel: { text: 'IN', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'acc_fuse_out', group: 'bottom', attrs: { portLabel: { text: 'OUT', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } }
+        ],
+        'accessory'
+      );
+
+      // 11. 12V Accessories
+      const accessories = createComponentWithPorts(
+        1370, 250, 150, 70,
+        '12V Accessories\nLights/Horn',
+        [
+          { id: 'acc_12v_pos', group: 'top', attrs: { portLabel: { text: '+', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'acc_12v_neg', group: 'top', attrs: { portLabel: { text: '-', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } }
+        ],
+        'accessory'
+      );
+
+      // ROW 3: MORE SAFETY (Middle)
+
+      // 12. SW180 Flyback Diode
+      const sw180Diode = createComponentWithPorts(
+        350, 460, 50, 60,
+        'D1\n1N4007',
+        [
+          { id: 'd1_cathode', group: 'top', attrs: { portLabel: { text: '+', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'd1_anode', group: 'bottom', attrs: { portLabel: { text: '-', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } }
+        ],
+        'control'
+      );
+
+      // 13. SW202 FWD Coil Flyback Diode
+      const sw202FwdDiode = createComponentWithPorts(
+        920, 460, 50, 60,
+        'D2\n1N4007',
+        [
+          { id: 'd2_cathode', group: 'top', attrs: { portLabel: { text: '+', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'd2_anode', group: 'bottom', attrs: { portLabel: { text: '-', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } }
+        ],
+        'control'
+      );
+
+      // 14. SW202 REV Coil Flyback Diode
+      const sw202RevDiode = createComponentWithPorts(
+        1020, 460, 50, 60,
+        'D3\n1N4007',
+        [
+          { id: 'd3_cathode', group: 'top', attrs: { portLabel: { text: '+', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'd3_anode', group: 'bottom', attrs: { portLabel: { text: '-', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } }
+        ],
+        'control'
+      );
+
+      // ROW 4: CONTROL COMPONENTS (Bottom)
+
+      // 15. Key Switch
       const keySwitch = createComponentWithPorts(
-        50, 350, 130, 70,
+        100, 700, 140, 80,
         'Key Switch\n3-Position',
         [
           { id: 'key_batt', group: 'top', attrs: { portLabel: { text: 'BAT', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
@@ -349,21 +447,9 @@ export default function WiringDiagram({
         'control'
       );
 
-      // 8. Direction Switch (Bottom center-right)
-      const dirSwitch = createComponentWithPorts(
-        650, 350, 130, 70,
-        'Direction\nSwitch',
-        [
-          { id: 'dir_in', group: 'left', attrs: { portLabel: { text: 'IN', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
-          { id: 'dir_fwd', group: 'top', attrs: { portLabel: { text: 'FWD', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
-          { id: 'dir_rev', group: 'top', attrs: { portLabel: { text: 'REV', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } }
-        ],
-        'control'
-      );
-
-      // 9. PB-6 Throttle Pot Box (Bottom center)
+      // 16. PB-6 Throttle Pot Box
       const throttle = createComponentWithPorts(
-        380, 350, 130, 80,
+        520, 700, 140, 90,
         'PB-6 Throttle\nPot Box',
         [
           { id: 'throttle_5v', group: 'top', attrs: { portLabel: { text: '5V', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
@@ -374,96 +460,16 @@ export default function WiringDiagram({
         'control'
       );
 
-      // 10. DC-DC Converter (Top far right)
-      const dcConverter = createComponentWithPorts(
-        1010, 40, 140, 80,
-        '36V→12V\nConverter',
+      // 17. Direction Switch
+      const dirSwitch = createComponentWithPorts(
+        940, 700, 140, 80,
+        'Direction\nSwitch',
         [
-          { id: 'dc_36v_pos', group: 'left', attrs: { portLabel: { text: '36+', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
-          { id: 'dc_36v_neg', group: 'left', attrs: { portLabel: { text: '36-', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
-          { id: 'dc_12v_pos', group: 'bottom', attrs: { portLabel: { text: '12+', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
-          { id: 'dc_12v_neg', group: 'bottom', attrs: { portLabel: { text: '12-', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } }
-        ],
-        'accessory'
-      );
-
-      // 11. 12V Accessories (Below DC-DC converter)
-      const accessories = createComponentWithPorts(
-        1010, 180, 140, 60,
-        '12V Accessories\nLights/Horn',
-        [
-          { id: 'acc_12v_pos', group: 'top', attrs: { portLabel: { text: '+', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
-          { id: 'acc_12v_neg', group: 'top', attrs: { portLabel: { text: '-', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } }
-        ],
-        'accessory'
-      );
-
-      // SAFETY COMPONENTS - Positioned near protected components
-
-      // 12. Pre-charge Resistor (below SW180)
-      const prechargeRes = createComponentWithPorts(
-        410, 160, 100, 50,
-        '1.5kΩ 10W\nPre-charge',
-        [
-          { id: 'precharge_in', group: 'left', attrs: { portLabel: { text: 'IN', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } },
-          { id: 'precharge_out', group: 'right', attrs: { portLabel: { text: 'OUT', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } }
-        ],
-        'power'
-      );
-
-      // 13. SW180 Flyback Diode (below SW180)
-      const sw180Diode = createComponentWithPorts(
-        460, 230, 40, 50,
-        'D1\n1N4007',
-        [
-          { id: 'd1_cathode', group: 'top', attrs: { portLabel: { text: '+', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } },
-          { id: 'd1_anode', group: 'bottom', attrs: { portLabel: { text: '-', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } }
+          { id: 'dir_in', group: 'left', attrs: { portLabel: { text: 'IN', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'dir_fwd', group: 'top', attrs: { portLabel: { text: 'FWD', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'dir_rev', group: 'top', attrs: { portLabel: { text: 'REV', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } }
         ],
         'control'
-      );
-
-      // 14. SW202 FWD Coil Flyback Diode (below direction switch)
-      const sw202FwdDiode = createComponentWithPorts(
-        670, 260, 40, 50,
-        'D2\n1N4007',
-        [
-          { id: 'd2_cathode', group: 'top', attrs: { portLabel: { text: '+', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } },
-          { id: 'd2_anode', group: 'bottom', attrs: { portLabel: { text: '-', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } }
-        ],
-        'control'
-      );
-
-      // 15. SW202 REV Coil Flyback Diode (below direction switch)
-      const sw202RevDiode = createComponentWithPorts(
-        730, 260, 40, 50,
-        'D3\n1N4007',
-        [
-          { id: 'd3_cathode', group: 'top', attrs: { portLabel: { text: '+', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } },
-          { id: 'd3_anode', group: 'bottom', attrs: { portLabel: { text: '-', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } }
-        ],
-        'control'
-      );
-
-      // 16. 5A Control Circuit Fuse (between battery and key switch)
-      const controlFuse = createComponentWithPorts(
-        50, 180, 50, 60,
-        '5A Fuse',
-        [
-          { id: 'ctrl_fuse_in', group: 'top', attrs: { portLabel: { text: 'IN', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } },
-          { id: 'ctrl_fuse_out', group: 'bottom', attrs: { portLabel: { text: 'OUT', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } }
-        ],
-        'control'
-      );
-
-      // 17. 12V Accessory Fuse (between DC-DC converter and accessories)
-      const accessoryFuse = createComponentWithPorts(
-        1010, 145, 70, 25,
-        '15A Fuse',
-        [
-          { id: 'acc_fuse_in', group: 'top', attrs: { portLabel: { text: 'IN', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } },
-          { id: 'acc_fuse_out', group: 'bottom', attrs: { portLabel: { text: 'OUT', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } }
-        ],
-        'accessory'
       );
 
       // Add all components to graph
