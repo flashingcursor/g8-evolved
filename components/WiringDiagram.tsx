@@ -12,8 +12,8 @@ interface WiringDiagramProps {
 
 export default function WiringDiagram({
   title = "Wiring Diagram",
-  width = 1600,
-  height = 1000
+  width = 1000,
+  height = 600
 }: WiringDiagramProps) {
   const paperContainer = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -268,13 +268,19 @@ export default function WiringDiagram({
         });
       };
 
-      // SPACIOUS LAYOUT - Maximum spacing for clean routing on 1600x1000 canvas
+      // SCALED LAYOUT - Component dimensions based on actual physical sizes
+      // Scale factor: 0.35 pixels per mm (makes large battery ~182px wide)
+
+      // Physical dimensions (L×W×H in mm):
+      // Battery: 520×269×220, SW180: 61×45×122, SW202: 160.5×82×152
+      // Curtis 1204M: 174×130×~100, ANL fuse block: ~158×58, PB-6: ~102×60×52
+      // DC-DC converter: ~100×80 (typical 30A), Key switch: ~20Ø body
 
       // ROW 1: MAIN POWER PATH (Top)
 
-      // 1. Battery Pack (Far left)
+      // 1. Battery Pack (520×269mm → 182×94px)
       const battery = createComponentWithPorts(
-        50, 50, 150, 90,
+        50, 50, 182, 94,
         '36V Battery\n100Ah LiFePO₄',
         [
           { id: 'b_plus', group: 'right', attrs: { portLabel: { text: 'B+', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
@@ -283,10 +289,10 @@ export default function WiringDiagram({
         'power'
       );
 
-      // 2. 250A ANL Fuse
+      // 2. 250A ANL Fuse Block (158×58mm → 55×20px)
       const fuse = createComponentWithPorts(
-        280, 60, 130, 70,
-        '250A ANL Fuse',
+        310, 75, 55, 20,
+        '250A ANL',
         [
           { id: 'fuse_in', group: 'left', attrs: { portLabel: { text: 'IN', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
           { id: 'fuse_out', group: 'right', attrs: { portLabel: { text: 'OUT', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } }
@@ -294,193 +300,194 @@ export default function WiringDiagram({
         'power'
       );
 
-      // 3. SW180 Main Contactor
+      // 3. SW180 Main Contactor (61×45mm cap → 21×16px, height 122mm → 43px)
       const sw180 = createComponentWithPorts(
-        490, 50, 150, 90,
-        'SW180\nMain Contactor',
+        445, 50, 21, 43,
+        'SW180',
         [
-          { id: 'sw180_b_in', group: 'left', attrs: { portLabel: { text: 'B+', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
-          { id: 'sw180_b_out', group: 'right', attrs: { portLabel: { text: 'B+', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
-          { id: 'sw180_coil_pos', group: 'bottom', attrs: { portLabel: { text: '86', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
-          { id: 'sw180_coil_neg', group: 'bottom', attrs: { portLabel: { text: '85', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } }
+          { id: 'sw180_b_in', group: 'left', attrs: { portLabel: { text: 'B+', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'sw180_b_out', group: 'right', attrs: { portLabel: { text: 'B+', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'sw180_coil_pos', group: 'bottom', attrs: { portLabel: { text: '86', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'sw180_coil_neg', group: 'bottom', attrs: { portLabel: { text: '85', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } }
         ],
         'power'
       );
 
-      // 4. Curtis 1204M Controller
+      // 4. Curtis 1204M Controller (174×130mm → 61×46px)
       const controller = createComponentWithPorts(
-        800, 50, 180, 110,
-        'Curtis 1204M\nController',
+        560, 50, 61, 46,
+        'Curtis\n1204M',
         [
-          { id: 'ctrl_b_plus', group: 'left', attrs: { portLabel: { text: 'B+', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
-          { id: 'ctrl_b_minus', group: 'left', attrs: { portLabel: { text: 'B-', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
-          { id: 'ctrl_m_minus', group: 'right', attrs: { portLabel: { text: 'M-', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
-          { id: 'ctrl_ksi', group: 'bottom', attrs: { portLabel: { text: 'KSI', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
-          { id: 'ctrl_pot_high', group: 'bottom', attrs: { portLabel: { text: '5V', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
-          { id: 'ctrl_pot_wiper', group: 'bottom', attrs: { portLabel: { text: 'POT', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
-          { id: 'ctrl_pot_low', group: 'bottom', attrs: { portLabel: { text: 'GND', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
-          { id: 'ctrl_enable', group: 'bottom', attrs: { portLabel: { text: 'EN', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } }
+          { id: 'ctrl_b_plus', group: 'left', attrs: { portLabel: { text: 'B+', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'ctrl_b_minus', group: 'left', attrs: { portLabel: { text: 'B-', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'ctrl_m_minus', group: 'right', attrs: { portLabel: { text: 'M-', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'ctrl_ksi', group: 'bottom', attrs: { portLabel: { text: 'KSI', fontSize: 8, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'ctrl_pot_high', group: 'bottom', attrs: { portLabel: { text: '5V', fontSize: 8, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'ctrl_pot_wiper', group: 'bottom', attrs: { portLabel: { text: 'POT', fontSize: 8, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'ctrl_pot_low', group: 'bottom', attrs: { portLabel: { text: 'GND', fontSize: 8, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'ctrl_enable', group: 'bottom', attrs: { portLabel: { text: 'EN', fontSize: 8, fill: '#1f2937', fontWeight: 'bold' } } }
         ],
         'motor'
       );
 
-      // 5. DC Series Motor
+      // 5. DC Series Motor (approximate 200×150mm → 70×53px)
       const motor = createComponentWithPorts(
-        1090, 50, 150, 110,
-        'DC Series Motor',
+        720, 50, 70, 53,
+        'Motor',
         [
-          { id: 'motor_a1', group: 'left', attrs: { portLabel: { text: 'A1', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
-          { id: 'motor_a2', group: 'bottom', attrs: { portLabel: { text: 'A2', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
-          { id: 'motor_f1', group: 'bottom', attrs: { portLabel: { text: 'F1', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
-          { id: 'motor_f2', group: 'bottom', attrs: { portLabel: { text: 'F2', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } }
+          { id: 'motor_a1', group: 'left', attrs: { portLabel: { text: 'A1', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'motor_a2', group: 'bottom', attrs: { portLabel: { text: 'A2', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'motor_f1', group: 'bottom', attrs: { portLabel: { text: 'F1', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'motor_f2', group: 'bottom', attrs: { portLabel: { text: 'F2', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } }
         ],
         'motor'
       );
 
-      // 6. DC-DC Converter (Far right)
+      // 6. DC-DC Converter (100×80mm → 35×28px)
       const dcConverter = createComponentWithPorts(
-        1370, 50, 150, 90,
-        '36V→12V\nConverter',
+        890, 60, 35, 28,
+        '36V→12V',
         [
-          { id: 'dc_36v_pos', group: 'left', attrs: { portLabel: { text: '36+', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
-          { id: 'dc_36v_neg', group: 'left', attrs: { portLabel: { text: '36-', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
-          { id: 'dc_12v_pos', group: 'bottom', attrs: { portLabel: { text: '12+', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
-          { id: 'dc_12v_neg', group: 'bottom', attrs: { portLabel: { text: '12-', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } }
+          { id: 'dc_36v_pos', group: 'left', attrs: { portLabel: { text: '36+', fontSize: 8, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'dc_36v_neg', group: 'left', attrs: { portLabel: { text: '36-', fontSize: 8, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'dc_12v_pos', group: 'bottom', attrs: { portLabel: { text: '12+', fontSize: 8, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'dc_12v_neg', group: 'bottom', attrs: { portLabel: { text: '12-', fontSize: 8, fill: '#1f2937', fontWeight: 'bold' } } }
         ],
         'accessory'
       );
 
       // ROW 2: SAFETY COMPONENTS (Middle-upper)
 
-      // 7. Pre-charge Resistor (below SW180)
+      // 7. Pre-charge Resistor (49×10mm 10W axial → 17×4px)
       const prechargeRes = createComponentWithPorts(
-        490, 190, 110, 60,
-        '1.5kΩ 10W\nPre-charge',
+        435, 130, 17, 4,
+        '1.5kΩ',
         [
-          { id: 'precharge_in', group: 'left', attrs: { portLabel: { text: 'IN', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } },
-          { id: 'precharge_out', group: 'right', attrs: { portLabel: { text: 'OUT', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } }
+          { id: 'precharge_in', group: 'left', attrs: { portLabel: { text: 'IN', fontSize: 8, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'precharge_out', group: 'right', attrs: { portLabel: { text: 'OUT', fontSize: 8, fill: '#1f2937', fontWeight: 'bold' } } }
         ],
         'power'
       );
 
-      // 8. 5A Control Circuit Fuse
+      // 8. 5A Control Circuit Fuse (small blade fuse holder ~40×20mm → 14×7px)
       const controlFuse = createComponentWithPorts(
-        50, 240, 60, 70,
-        '5A Fuse',
+        80, 200, 14, 7,
+        '5A',
         [
-          { id: 'ctrl_fuse_in', group: 'top', attrs: { portLabel: { text: 'IN', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } },
-          { id: 'ctrl_fuse_out', group: 'bottom', attrs: { portLabel: { text: 'OUT', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } }
+          { id: 'ctrl_fuse_in', group: 'top', attrs: { portLabel: { text: 'IN', fontSize: 8, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'ctrl_fuse_out', group: 'bottom', attrs: { portLabel: { text: 'OUT', fontSize: 8, fill: '#1f2937', fontWeight: 'bold' } } }
         ],
         'control'
       );
 
-      // 9. SW202 Reversing Contactor (below motor)
+      // 9. SW202 Reversing Contactor (160.5×82mm → 56×29px, height 152mm → 53px)
       const sw202 = createComponentWithPorts(
-        1090, 280, 150, 110,
-        'SW202\nReversing',
+        720, 170, 56, 53,
+        'SW202',
         [
-          { id: 'sw202_a2', group: 'top', attrs: { portLabel: { text: 'A2', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
-          { id: 'sw202_f1', group: 'top', attrs: { portLabel: { text: 'F1', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
-          { id: 'sw202_f2', group: 'top', attrs: { portLabel: { text: 'F2', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
-          { id: 'sw202_fwd_coil', group: 'left', attrs: { portLabel: { text: 'FWD', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
-          { id: 'sw202_rev_coil', group: 'left', attrs: { portLabel: { text: 'REV', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
-          { id: 'sw202_common', group: 'left', attrs: { portLabel: { text: 'COM', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } }
+          { id: 'sw202_a2', group: 'top', attrs: { portLabel: { text: 'A2', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'sw202_f1', group: 'top', attrs: { portLabel: { text: 'F1', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'sw202_f2', group: 'top', attrs: { portLabel: { text: 'F2', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'sw202_fwd_coil', group: 'left', attrs: { portLabel: { text: 'FWD', fontSize: 8, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'sw202_rev_coil', group: 'left', attrs: { portLabel: { text: 'REV', fontSize: 8, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'sw202_common', group: 'left', attrs: { portLabel: { text: 'COM', fontSize: 8, fill: '#1f2937', fontWeight: 'bold' } } }
         ],
         'motor'
       );
 
-      // 10. 15A Accessory Fuse
+      // 10. 15A Accessory Fuse (blade fuse holder ~40×20mm → 14×7px)
       const accessoryFuse = createComponentWithPorts(
-        1410, 180, 80, 30,
-        '15A Fuse',
+        890, 120, 14, 7,
+        '15A',
         [
-          { id: 'acc_fuse_in', group: 'top', attrs: { portLabel: { text: 'IN', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } },
-          { id: 'acc_fuse_out', group: 'bottom', attrs: { portLabel: { text: 'OUT', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } }
+          { id: 'acc_fuse_in', group: 'top', attrs: { portLabel: { text: 'IN', fontSize: 8, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'acc_fuse_out', group: 'bottom', attrs: { portLabel: { text: 'OUT', fontSize: 8, fill: '#1f2937', fontWeight: 'bold' } } }
         ],
         'accessory'
       );
 
-      // 11. 12V Accessories
+      // 11. 12V Accessories (representative box 120×80mm → 42×28px)
       const accessories = createComponentWithPorts(
-        1370, 250, 150, 70,
-        '12V Accessories\nLights/Horn',
+        870, 160, 42, 28,
+        '12V Accy',
         [
-          { id: 'acc_12v_pos', group: 'top', attrs: { portLabel: { text: '+', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
-          { id: 'acc_12v_neg', group: 'top', attrs: { portLabel: { text: '-', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } }
+          { id: 'acc_12v_pos', group: 'top', attrs: { portLabel: { text: '+', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'acc_12v_neg', group: 'top', attrs: { portLabel: { text: '-', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } }
         ],
         'accessory'
       );
 
-      // ROW 3: MORE SAFETY (Middle)
+      // ROW 3: FLYBACK DIODES (Middle) - scaled up 3x for visibility
+      // Actual: DO-201AD 9.5×5.3mm, displayed as 10×6px for usability
 
       // 12. SW180 Flyback Diode
       const sw180Diode = createComponentWithPorts(
-        350, 460, 50, 60,
-        'D1\n1N4007',
+        380, 300, 10, 6,
+        'D1',
         [
-          { id: 'd1_cathode', group: 'top', attrs: { portLabel: { text: '+', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } },
-          { id: 'd1_anode', group: 'bottom', attrs: { portLabel: { text: '-', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } }
+          { id: 'd1_cathode', group: 'top', attrs: { portLabel: { text: '+', fontSize: 8, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'd1_anode', group: 'bottom', attrs: { portLabel: { text: '-', fontSize: 8, fill: '#1f2937', fontWeight: 'bold' } } }
         ],
         'control'
       );
 
       // 13. SW202 FWD Coil Flyback Diode
       const sw202FwdDiode = createComponentWithPorts(
-        920, 460, 50, 60,
-        'D2\n1N4007',
+        630, 300, 10, 6,
+        'D2',
         [
-          { id: 'd2_cathode', group: 'top', attrs: { portLabel: { text: '+', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } },
-          { id: 'd2_anode', group: 'bottom', attrs: { portLabel: { text: '-', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } }
+          { id: 'd2_cathode', group: 'top', attrs: { portLabel: { text: '+', fontSize: 8, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'd2_anode', group: 'bottom', attrs: { portLabel: { text: '-', fontSize: 8, fill: '#1f2937', fontWeight: 'bold' } } }
         ],
         'control'
       );
 
       // 14. SW202 REV Coil Flyback Diode
       const sw202RevDiode = createComponentWithPorts(
-        1020, 460, 50, 60,
-        'D3\n1N4007',
+        680, 300, 10, 6,
+        'D3',
         [
-          { id: 'd3_cathode', group: 'top', attrs: { portLabel: { text: '+', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } },
-          { id: 'd3_anode', group: 'bottom', attrs: { portLabel: { text: '-', fontSize: 9, fill: '#1f2937', fontWeight: 'bold' } } }
+          { id: 'd3_cathode', group: 'top', attrs: { portLabel: { text: '+', fontSize: 8, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'd3_anode', group: 'bottom', attrs: { portLabel: { text: '-', fontSize: 8, fill: '#1f2937', fontWeight: 'bold' } } }
         ],
         'control'
       );
 
       // ROW 4: CONTROL COMPONENTS (Bottom)
 
-      // 15. Key Switch
+      // 15. Key Switch (20mm Ø body + panel mount ~30×30mm → 11×11px)
       const keySwitch = createComponentWithPorts(
-        100, 700, 140, 80,
-        'Key Switch\n3-Position',
+        100, 450, 11, 11,
+        'Key',
         [
-          { id: 'key_batt', group: 'top', attrs: { portLabel: { text: 'BAT', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
-          { id: 'key_acc', group: 'right', attrs: { portLabel: { text: 'ACC', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
-          { id: 'key_run', group: 'top', attrs: { portLabel: { text: 'RUN', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } }
+          { id: 'key_batt', group: 'top', attrs: { portLabel: { text: 'BAT', fontSize: 8, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'key_acc', group: 'right', attrs: { portLabel: { text: 'ACC', fontSize: 8, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'key_run', group: 'top', attrs: { portLabel: { text: 'RUN', fontSize: 8, fill: '#1f2937', fontWeight: 'bold' } } }
         ],
         'control'
       );
 
-      // 16. PB-6 Throttle Pot Box
+      // 16. PB-6 Throttle Pot Box (102×60mm → 36×21px)
       const throttle = createComponentWithPorts(
-        520, 700, 140, 90,
-        'PB-6 Throttle\nPot Box',
+        250, 450, 36, 21,
+        'PB-6',
         [
-          { id: 'throttle_5v', group: 'top', attrs: { portLabel: { text: '5V', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
-          { id: 'throttle_wiper', group: 'top', attrs: { portLabel: { text: 'W', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
-          { id: 'throttle_gnd', group: 'top', attrs: { portLabel: { text: 'G', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
-          { id: 'throttle_sw', group: 'left', attrs: { portLabel: { text: 'SW', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } }
+          { id: 'throttle_5v', group: 'top', attrs: { portLabel: { text: '5V', fontSize: 8, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'throttle_wiper', group: 'top', attrs: { portLabel: { text: 'W', fontSize: 8, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'throttle_gnd', group: 'top', attrs: { portLabel: { text: 'G', fontSize: 8, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'throttle_sw', group: 'left', attrs: { portLabel: { text: 'SW', fontSize: 8, fill: '#1f2937', fontWeight: 'bold' } } }
         ],
         'control'
       );
 
-      // 17. Direction Switch
+      // 17. Direction Switch (toggle switch ~40×20mm → 14×7px)
       const dirSwitch = createComponentWithPorts(
-        940, 700, 140, 80,
-        'Direction\nSwitch',
+        450, 450, 14, 7,
+        'Dir',
         [
-          { id: 'dir_in', group: 'left', attrs: { portLabel: { text: 'IN', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
-          { id: 'dir_fwd', group: 'top', attrs: { portLabel: { text: 'FWD', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
-          { id: 'dir_rev', group: 'top', attrs: { portLabel: { text: 'REV', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } }
+          { id: 'dir_in', group: 'left', attrs: { portLabel: { text: 'IN', fontSize: 8, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'dir_fwd', group: 'top', attrs: { portLabel: { text: 'FWD', fontSize: 8, fill: '#1f2937', fontWeight: 'bold' } } },
+          { id: 'dir_rev', group: 'top', attrs: { portLabel: { text: 'REV', fontSize: 8, fill: '#1f2937', fontWeight: 'bold' } } }
         ],
         'control'
       );
