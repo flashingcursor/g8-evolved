@@ -404,38 +404,38 @@ export default function WiringDiagram({
 
     // Main Power Path (RED - thick)
     const powerLinks = [
-      createPortLink(battery, 'b_plus', fuse, 'fuse_in', '2AWG', '#dc2626', 4),
-      createPortLink(fuse, 'fuse_out', sw180, 'sw180_b_in', '250A', '#dc2626', 4),
-      createPortLink(sw180, 'sw180_b_out', controller, 'ctrl_b_plus', 'B+', '#dc2626', 4),
-      createPortLink(controller, 'ctrl_m_minus', motor, 'motor_a1', 'M-', '#f59e0b', 4),
-      createPortLink(motor, 'motor_a2', sw202, 'sw202_a2', 'A2', '#f59e0b', 4),
-      createPortLink(sw202, 'sw202_f1', motor, 'motor_f1', 'F1', '#6366f1', 3),
-      createPortLink(sw202, 'sw202_f2', motor, 'motor_f2', 'F2', '#6366f1', 3),
+      createPortLink(battery, 'b_plus', fuse, 'fuse_in', '', '#dc2626', 4),
+      createPortLink(fuse, 'fuse_out', sw180, 'sw180_b_in', '', '#dc2626', 4),
+      createPortLink(sw180, 'sw180_b_out', controller, 'ctrl_b_plus', '', '#dc2626', 4),
+      createPortLink(controller, 'ctrl_m_minus', motor, 'motor_a1', '', '#f59e0b', 4),
+      createPortLink(motor, 'motor_a2', sw202, 'sw202_a2', '', '#f59e0b', 4),
+      createPortLink(sw202, 'sw202_f1', motor, 'motor_f1', '', '#6366f1', 3),
+      createPortLink(sw202, 'sw202_f2', motor, 'motor_f2', '', '#6366f1', 3),
     ];
 
     // Ground/Negative Returns (BLACK - thick)
     const groundLinks = [
-      createPortLink(battery, 'b_minus', controller, 'ctrl_b_minus', 'B-', '#1f2937', 4),
+      createPortLink(battery, 'b_minus', controller, 'ctrl_b_minus', '', '#1f2937', 4),
     ];
 
     // Control Signals (BLUE - thin)
     const controlLinks = [
-      createPortLink(keySwitch, 'key_run', sw180, 'sw180_coil_pos', 'KSI', '#3b82f6', 2),
-      createPortLink(keySwitch, 'key_run', controller, 'ctrl_ksi', 'KSI', '#3b82f6', 2),
-      createPortLink(dirSwitch, 'dir_fwd', sw202, 'sw202_fwd_coil', 'FWD', '#3b82f6', 2),
-      createPortLink(dirSwitch, 'dir_rev', sw202, 'sw202_rev_coil', 'REV', '#3b82f6', 2),
-      createPortLink(controller, 'ctrl_pot_high', throttle, 'throttle_5v', '5V', '#14b8a6', 2),
-      createPortLink(throttle, 'throttle_wiper', controller, 'ctrl_pot_wiper', 'POT', '#14b8a6', 2),
-      createPortLink(controller, 'ctrl_pot_low', throttle, 'throttle_gnd', 'GND', '#14b8a6', 2),
-      createPortLink(throttle, 'throttle_sw', controller, 'ctrl_enable', 'EN', '#14b8a6', 2),
+      createPortLink(keySwitch, 'key_run', sw180, 'sw180_coil_pos', '', '#3b82f6', 2),
+      createPortLink(keySwitch, 'key_run', controller, 'ctrl_ksi', '', '#3b82f6', 2),
+      createPortLink(dirSwitch, 'dir_fwd', sw202, 'sw202_fwd_coil', '', '#3b82f6', 2),
+      createPortLink(dirSwitch, 'dir_rev', sw202, 'sw202_rev_coil', '', '#3b82f6', 2),
+      createPortLink(controller, 'ctrl_pot_high', throttle, 'throttle_5v', '', '#14b8a6', 2),
+      createPortLink(throttle, 'throttle_wiper', controller, 'ctrl_pot_wiper', '', '#14b8a6', 2),
+      createPortLink(controller, 'ctrl_pot_low', throttle, 'throttle_gnd', '', '#14b8a6', 2),
+      createPortLink(throttle, 'throttle_sw', controller, 'ctrl_enable', '', '#14b8a6', 2),
     ];
 
     // 12V Accessory Circuit (PURPLE)
     const accessoryLinks = [
-      createPortLink(battery, 'b_plus', dcConverter, 'dc_36v_pos', '36V', '#8b5cf6', 3),
-      createPortLink(battery, 'b_minus', dcConverter, 'dc_36v_neg', 'GND', '#8b5cf6', 3),
-      createPortLink(dcConverter, 'dc_12v_pos', accessories, 'acc_12v_pos', '12V', '#a855f7', 2),
-      createPortLink(dcConverter, 'dc_12v_neg', accessories, 'acc_12v_neg', 'GND', '#a855f7', 2),
+      createPortLink(battery, 'b_plus', dcConverter, 'dc_36v_pos', '', '#8b5cf6', 3),
+      createPortLink(battery, 'b_minus', dcConverter, 'dc_36v_neg', '', '#8b5cf6', 3),
+      createPortLink(dcConverter, 'dc_12v_pos', accessories, 'acc_12v_pos', '', '#a855f7', 2),
+      createPortLink(dcConverter, 'dc_12v_neg', accessories, 'acc_12v_neg', '', '#a855f7', 2),
     ];
 
     // Add all links to graph
@@ -466,10 +466,15 @@ export default function WiringDiagram({
       const targetName = targetEl?.attr('label/text') || 'Unknown';
 
       alert(
-        `Connection: ${labelText}\n\n` +
+        `Connection Details\n\n` +
         `From: ${sourceName} [${source.port}]\n` +
         `To: ${targetName} [${target.port}]\n\n` +
-        `Click for wire gauge, color coding, and routing details.`
+        `Wire colors indicate circuit type:\n` +
+        `• Red/Orange = Power (2AWG)\n` +
+        `• Black = Ground (2AWG)\n` +
+        `• Blue = Control signals (14-16AWG)\n` +
+        `• Teal = Throttle (18AWG)\n` +
+        `• Purple = 12V accessories`
       );
     });
 
