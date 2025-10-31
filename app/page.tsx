@@ -15,24 +15,24 @@ export default function Home() {
         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
           <h2 className="text-2xl font-bold mb-3 text-blue-600">⚡ Power System</h2>
           <p className="text-gray-600 dark:text-gray-300">
-            Complete battery and charging system upgrade with modern lithium technology
-            and advanced BMS integration
+            36V 100Ah LiFePO₄ battery with internal BMS, delivering safe, long-lasting
+            power with modern contactor-based switching
           </p>
         </div>
 
         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
           <h2 className="text-2xl font-bold mb-3 text-blue-600">🔌 Wiring</h2>
           <p className="text-gray-600 dark:text-gray-300">
-            Interactive wiring diagrams showing every connection, with detailed
-            specifications and color coding
+            Interactive wiring diagrams showing the Curtis 1204M controller, SW180/SW202
+            contactors, and complete power distribution
           </p>
         </div>
 
         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
           <h2 className="text-2xl font-bold mb-3 text-blue-600">🎛️ Controls</h2>
           <p className="text-gray-600 dark:text-gray-300">
-            Modern motor controller, throttle system, and regenerative braking
-            implementation guide
+            MOSFET-based Curtis controller with PB-6 throttle pot, key switch, and
+            direction switch for smooth, efficient operation
           </p>
         </div>
       </section>
@@ -41,16 +41,18 @@ export default function Home() {
         <h2 className="text-3xl font-bold mb-4">Project Overview</h2>
         <div className="space-y-4 text-gray-700 dark:text-gray-300">
           <p>
-            This project documents the complete end-to-end upgrade of a Yamaha G8 golf cart,
-            replacing all original electronics with modern, efficient components.
+            This project documents the complete upgrade of a Yamaha G8 golf cart, replacing
+            the old resistor-based speed control with a modern solid-state MOSFET controller
+            system for vastly improved efficiency and performance.
           </p>
           <ul className="list-disc list-inside space-y-2 ml-4">
-            <li>Lithium battery pack with advanced BMS</li>
-            <li>High-efficiency motor controller</li>
-            <li>LED lighting system</li>
-            <li>Digital dashboard and monitoring</li>
-            <li>Regenerative braking capability</li>
-            <li>Enhanced safety systems</li>
+            <li>36V 100Ah LiFePO₄ battery pack (internal BMS)</li>
+            <li>Curtis 1204M MOSFET controller (275-500A)</li>
+            <li>SW180 main contactor + SW202 reversing contactor</li>
+            <li>PB-6 throttle pot box with microswitch enable</li>
+            <li>36V → 12V DC-DC converter for accessories</li>
+            <li>250A ANL fuse + flyback diode protection</li>
+            <li>Optional: LED lighting, battery meter, direction indicators</li>
           </ul>
         </div>
       </section>

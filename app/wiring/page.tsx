@@ -42,19 +42,25 @@ export default function WiringPage() {
           <h3 className="text-xl font-bold mb-3 text-blue-600">Component Specifications</h3>
           <div className="space-y-3 text-sm">
             <div className="border-b pb-2">
-              <strong>Battery Pack:</strong> 48V Lithium-Ion, 100Ah capacity
+              <strong>Battery Pack:</strong> 36V 100Ah LiFePO₄ (internal BMS)
             </div>
             <div className="border-b pb-2">
-              <strong>BMS:</strong> 16S Battery Management System with balancing
+              <strong>Main Fuse:</strong> 250A ANL near battery positive
             </div>
             <div className="border-b pb-2">
-              <strong>Motor Controller:</strong> 400A continuous, 600A peak
+              <strong>Motor Controller:</strong> Curtis 1204M (36V 275-500A)
             </div>
             <div className="border-b pb-2">
-              <strong>Motor:</strong> 5kW DC Series Motor
+              <strong>Main Contactor:</strong> SW180 (36-48V coil)
             </div>
             <div className="border-b pb-2">
-              <strong>Throttle:</strong> Hall-effect 0-5V potentiometer
+              <strong>Reversing Contactor:</strong> SW202 dual-coil (36-48V)
+            </div>
+            <div className="border-b pb-2">
+              <strong>Throttle:</strong> PB-6 0-5kΩ pot with microswitch
+            </div>
+            <div className="border-b pb-2">
+              <strong>DC-DC Converter:</strong> 36V → 12V (20-25A)
             </div>
           </div>
         </div>
@@ -63,24 +69,28 @@ export default function WiringPage() {
           <h3 className="text-xl font-bold mb-3 text-blue-600">Wire Specifications</h3>
           <div className="space-y-3 text-sm">
             <div className="border-b pb-2">
-              <strong>Main Power (Battery to BMS):</strong>
-              <br />2/0 AWG, Red (+) / Black (-)
+              <strong>Traction Power (Main Path):</strong>
+              <br />2 AWG welding cable, Red (+) / Black (-)
             </div>
             <div className="border-b pb-2">
-              <strong>BMS to Controller:</strong>
-              <br />2 AWG, Red (+) / Black (-)
+              <strong>Motor Armature (Controller → Motor):</strong>
+              <br />2 AWG, M- terminal
             </div>
             <div className="border-b pb-2">
-              <strong>Controller to Motor:</strong>
-              <br />2 AWG, Orange (motor cables)
+              <strong>Motor Field (via SW202):</strong>
+              <br />2 AWG to reversing contactor
             </div>
             <div className="border-b pb-2">
-              <strong>Control Signals:</strong>
-              <br />18 AWG shielded cable
+              <strong>Control Lines (Key, Direction, Coils):</strong>
+              <br />14-16 AWG stranded with inline 5A fuses
             </div>
             <div className="border-b pb-2">
-              <strong>Telemetry/Data:</strong>
-              <br />22 AWG CAT6 or CAN bus cable
+              <strong>Throttle Signal:</strong>
+              <br />18 AWG 3-wire to controller
+            </div>
+            <div className="border-b pb-2">
+              <strong>Protection:</strong>
+              <br />1N5408 diodes across all contactor coils
             </div>
           </div>
         </div>
