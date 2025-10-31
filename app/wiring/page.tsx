@@ -31,9 +31,9 @@ export default function WiringPage() {
 
       <section className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
         <WiringDiagram
-          title="Main Power Distribution"
-          width={800}
-          height={600}
+          title="Main Power Distribution - Complete System"
+          width={1000}
+          height={700}
         />
       </section>
 
