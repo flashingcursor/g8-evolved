@@ -470,14 +470,15 @@ export default function WiringDiagram({
         createPortLink(fuse, 'fuse_out', sw180, 'sw180_b_in', '#DC2626', 2),        // Red 2AWG
         createPortLink(sw180, 'sw180_b_out', controller, 'ctrl_b_plus', '#DC2626', 2), // Red 2AWG
 
-        // Motor Circuit - 2AWG (Red for motor drive, Black for return)
+        // Motor Circuit - 2AWG (Red for drive IN, Black for return OUT)
         // Path: Controller M- → Motor A1 → A2 → SW202 → F1/F2 (switched) → Motor F1/F2 → COM → Battery B-
-        // M- outputs PWM at B+ potential (hot side = RED), COM returns to B- (ground = BLACK)
-        createPortLink(controller, 'ctrl_m_minus', motor, 'motor_a1', '#DC2626', 2), // Red 2AWG - PWM source
-        createPortLink(motor, 'motor_a2', sw202, 'sw202_a2', '#DC2626', 2),          // Red 2AWG - armature continues
-        createPortLink(sw202, 'sw202_f1', motor, 'motor_f1', '#DC2626', 2),          // Red 2AWG - field connection
-        createPortLink(sw202, 'sw202_f2', motor, 'motor_f2', '#DC2626', 2),          // Red 2AWG - field connection
-        createPortLink(sw202, 'sw202_common', battery, 'b_minus', '#000000', 2),     // Black 2AWG - return to ground
+        // RED = PWM source driving INTO motor armature
+        // BLACK = Return path FROM motor through field back to battery
+        createPortLink(controller, 'ctrl_m_minus', motor, 'motor_a1', '#DC2626', 2), // Red 2AWG - PWM source into armature
+        createPortLink(motor, 'motor_a2', sw202, 'sw202_a2', '#000000', 2),          // Black 2AWG - armature return/output
+        createPortLink(sw202, 'sw202_f1', motor, 'motor_f1', '#000000', 2),          // Black 2AWG - field in return path
+        createPortLink(sw202, 'sw202_f2', motor, 'motor_f2', '#000000', 2),          // Black 2AWG - field in return path
+        createPortLink(sw202, 'sw202_common', battery, 'b_minus', '#000000', 2),     // Black 2AWG - final ground return
 
         // Ground/Negative Returns - 2AWG (Black)
         createPortLink(battery, 'b_minus', controller, 'ctrl_b_minus', '#000000', 2), // Black 2AWG
