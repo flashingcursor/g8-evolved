@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { dia, shapes } from '@joint/core';
+import { AvoidRouter } from '../utils/avoid-router';
 
 interface WiringDiagramProps {
   title?: string;
@@ -15,491 +16,404 @@ export default function WiringDiagram({
   height = 700
 }: WiringDiagramProps) {
   const paperContainer = useRef<HTMLDivElement>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const routerRef = useRef<AvoidRouter | null>(null);
 
   useEffect(() => {
     if (!paperContainer.current) return;
 
-    // Create a graph and paper
-    const graph = new dia.Graph({}, { cellNamespace: shapes });
+    let paper: dia.Paper;
+    let graph: dia.Graph;
 
-    const paper = new dia.Paper({
-      el: paperContainer.current,
-      model: graph,
-      width: width,
-      height: height,
-      gridSize: 10,
-      drawGrid: true,
-      background: {
-        color: '#f9fafb'
-      },
-      cellViewNamespace: shapes,
-      interactive: true,
-      linkPinning: false,
-      defaultConnector: { name: 'rounded' },
-      defaultRouter: {
-        name: 'manhattan',
-        args: {
-          step: 10,
-          padding: 20,
-          maximumLoops: 2000,
-          maxAllowedDirectionChange: 90,
-          perpendicular: true,
-          excludeEnds: [],
-          excludeTypes: ['standard.Text']
-        }
-      },
-    });
+    const initDiagram = async () => {
+      // Load the libavoid WASM library
+      await AvoidRouter.load();
+      setIsLoading(false);
 
-    // Define port groups for consistent styling
-    const portGroups = {
-      'power-out': {
-        position: 'right',
-        attrs: {
-          circle: {
-            r: 6,
-            magnet: true,
-            stroke: '#dc2626',
-            strokeWidth: 2,
-            fill: '#fef2f2'
-          },
-          text: {
-            fontSize: 10,
-            fill: '#1f2937',
-            fontWeight: 'bold'
-          }
-        },
-        label: {
-          position: {
-            name: 'right',
-            args: { y: 0 }
-          }
-        }
-      },
-      'power-in': {
-        position: 'left',
-        attrs: {
-          circle: {
-            r: 6,
-            magnet: true,
-            stroke: '#dc2626',
-            strokeWidth: 2,
-            fill: '#fef2f2'
-          },
-          text: {
-            fontSize: 10,
-            fill: '#1f2937',
-            fontWeight: 'bold'
-          }
-        },
-        label: {
-          position: {
-            name: 'left',
-            args: { y: 0 }
-          }
-        }
-      },
-      'control-out': {
-        position: 'right',
-        attrs: {
-          circle: {
-            r: 5,
-            magnet: true,
-            stroke: '#3b82f6',
-            strokeWidth: 2,
-            fill: '#eff6ff'
-          },
-          text: {
-            fontSize: 9,
-            fill: '#1f2937'
-          }
-        },
-        label: {
-          position: {
-            name: 'right',
-            args: { y: 0 }
-          }
-        }
-      },
-      'control-in': {
-        position: 'left',
-        attrs: {
-          circle: {
-            r: 5,
-            magnet: true,
-            stroke: '#3b82f6',
-            strokeWidth: 2,
-            fill: '#eff6ff'
-          },
-          text: {
-            fontSize: 9,
-            fill: '#1f2937'
-          }
-        },
-        label: {
-          position: {
-            name: 'left',
-            args: { y: 0 }
-          }
-        }
-      },
-      'motor': {
-        position: 'bottom',
-        attrs: {
-          circle: {
-            r: 6,
-            magnet: true,
-            stroke: '#f59e0b',
-            strokeWidth: 2,
-            fill: '#fffbeb'
-          },
-          text: {
-            fontSize: 10,
-            fill: '#1f2937',
-            fontWeight: 'bold'
-          }
-        },
-        label: {
-          position: {
-            name: 'bottom',
-            args: { y: 15 }
-          }
-        }
-      }
-    };
+      // Create a graph and paper
+      graph = new dia.Graph({}, { cellNamespace: shapes });
 
-    // Helper function to create component with ports
-    const createComponentWithPorts = (
-      x: number,
-      y: number,
-      width: number,
-      height: number,
-      label: string,
-      color: string,
-      ports: any[]
-    ) => {
-      return new shapes.standard.Rectangle({
-        position: { x, y },
-        size: { width, height },
-        attrs: {
-          body: {
-            fill: color,
-            stroke: '#1e40af',
-            strokeWidth: 2,
-            rx: 5,
-            ry: 5
+      paper = new dia.Paper({
+        el: paperContainer.current!,
+        model: graph,
+        width: width,
+        height: height,
+        gridSize: 10,
+        drawGrid: true,
+        background: { color: '#F3F7F6' },
+        cellViewNamespace: shapes,
+        interactive: { linkMove: false },
+        linkPinning: false,
+        async: true,
+        frozen: true,
+        snapLinks: { radius: 30 },
+        overflow: true,
+        defaultConnector: {
+          name: 'straight',
+          args: {
+            cornerType: 'cubic',
+            cornerRadius: 4,
           },
-          label: {
-            text: label,
-            fill: 'white',
-            fontSize: 12,
-            fontWeight: 'bold',
-            textAnchor: 'middle',
-            textVerticalAnchor: 'middle'
-          }
         },
-        ports: {
-          groups: portGroups,
-          items: ports
-        }
       });
-    };
 
-    // 1. Battery Pack - 36V LiFePO4
-    const battery = createComponentWithPorts(
-      50, 50, 140, 80,
-      '36V Battery\n100Ah LiFePO₄',
-      '#10b981',
-      [
-        { id: 'b_plus', group: 'power-out', attrs: { text: { text: 'B+' } } },
-        { id: 'b_minus', group: 'power-out', attrs: { text: { text: 'B-' } } }
-      ]
-    );
-
-    // 2. 250A ANL Fuse
-    const fuse = createComponentWithPorts(
-      50, 180, 140, 60,
-      '250A ANL Fuse',
-      '#dc2626',
-      [
-        { id: 'fuse_in', group: 'power-in', attrs: { text: { text: 'IN' } } },
-        { id: 'fuse_out', group: 'power-out', attrs: { text: { text: 'OUT' } } }
-      ]
-    );
-
-    // 3. SW180 Main Contactor
-    const sw180 = createComponentWithPorts(
-      50, 290, 140, 80,
-      'SW180\nMain Contactor',
-      '#8b5cf6',
-      [
-        { id: 'sw180_b_in', group: 'power-in', attrs: { text: { text: 'B+' } } },
-        { id: 'sw180_b_out', group: 'power-out', attrs: { text: { text: 'B+' } } },
-        { id: 'sw180_coil_pos', group: 'control-in', attrs: { text: { text: '86' } } },
-        { id: 'sw180_coil_neg', group: 'control-in', attrs: { text: { text: '85' } } }
-      ]
-    );
-
-    // 4. Curtis 1204M Controller
-    const controller = createComponentWithPorts(
-      280, 180, 160, 100,
-      'Curtis 1204M\nController',
-      '#f59e0b',
-      [
-        { id: 'ctrl_b_plus', group: 'power-in', attrs: { text: { text: 'B+' } } },
-        { id: 'ctrl_b_minus', group: 'power-in', attrs: { text: { text: 'B-' } } },
-        { id: 'ctrl_m_minus', group: 'power-out', attrs: { text: { text: 'M-' } } },
-        { id: 'ctrl_ksi', group: 'control-in', attrs: { text: { text: 'KSI' } } },
-        { id: 'ctrl_pot_high', group: 'control-out', attrs: { text: { text: '5V' } } },
-        { id: 'ctrl_pot_wiper', group: 'control-in', attrs: { text: { text: 'POT' } } },
-        { id: 'ctrl_pot_low', group: 'control-in', attrs: { text: { text: 'GND' } } },
-        { id: 'ctrl_enable', group: 'control-in', attrs: { text: { text: 'EN' } } }
-      ]
-    );
-
-    // 5. DC Series Motor
-    const motor = createComponentWithPorts(
-      520, 80, 140, 100,
-      'DC Series Motor',
-      '#ef4444',
-      [
-        { id: 'motor_a1', group: 'motor', attrs: { text: { text: 'A1' } } },
-        { id: 'motor_a2', group: 'motor', attrs: { text: { text: 'A2' } } },
-        { id: 'motor_f1', group: 'motor', attrs: { text: { text: 'F1' } } },
-        { id: 'motor_f2', group: 'motor', attrs: { text: { text: 'F2' } } }
-      ]
-    );
-
-    // 6. SW202 Reversing Contactor
-    const sw202 = createComponentWithPorts(
-      520, 240, 140, 100,
-      'SW202\nReversing',
-      '#6366f1',
-      [
-        { id: 'sw202_a2', group: 'power-in', attrs: { text: { text: 'A2' } } },
-        { id: 'sw202_f1', group: 'power-out', attrs: { text: { text: 'F1' } } },
-        { id: 'sw202_f2', group: 'power-out', attrs: { text: { text: 'F2' } } },
-        { id: 'sw202_fwd_coil', group: 'control-in', attrs: { text: { text: 'FWD' } } },
-        { id: 'sw202_rev_coil', group: 'control-in', attrs: { text: { text: 'REV' } } },
-        { id: 'sw202_common', group: 'control-in', attrs: { text: { text: 'COM' } } }
-      ]
-    );
-
-    // 7. Key Switch (3-position)
-    const keySwitch = createComponentWithPorts(
-      50, 450, 120, 80,
-      'Key Switch\n3-Position',
-      '#06b6d4',
-      [
-        { id: 'key_batt', group: 'control-in', attrs: { text: { text: 'BAT' } } },
-        { id: 'key_acc', group: 'control-out', attrs: { text: { text: 'ACC' } } },
-        { id: 'key_run', group: 'control-out', attrs: { text: { text: 'RUN' } } }
-      ]
-    );
-
-    // 8. Direction Switch
-    const dirSwitch = createComponentWithPorts(
-      230, 450, 120, 80,
-      'Direction\nSwitch',
-      '#06b6d4',
-      [
-        { id: 'dir_in', group: 'control-in', attrs: { text: { text: 'IN' } } },
-        { id: 'dir_fwd', group: 'control-out', attrs: { text: { text: 'FWD' } } },
-        { id: 'dir_rev', group: 'control-out', attrs: { text: { text: 'REV' } } }
-      ]
-    );
-
-    // 9. PB-6 Throttle Pot Box
-    const throttle = createComponentWithPorts(
-      410, 450, 120, 80,
-      'PB-6 Throttle\nPot Box',
-      '#14b8a6',
-      [
-        { id: 'throttle_5v', group: 'control-in', attrs: { text: { text: '5V' } } },
-        { id: 'throttle_wiper', group: 'control-out', attrs: { text: { text: 'W' } } },
-        { id: 'throttle_gnd', group: 'control-in', attrs: { text: { text: 'G' } } },
-        { id: 'throttle_sw', group: 'control-out', attrs: { text: { text: 'SW' } } }
-      ]
-    );
-
-    // 10. DC-DC Converter
-    const dcConverter = createComponentWithPorts(
-      750, 80, 140, 80,
-      '36V→12V\nConverter',
-      '#ec4899',
-      [
-        { id: 'dc_36v_pos', group: 'power-in', attrs: { text: { text: '36+' } } },
-        { id: 'dc_36v_neg', group: 'power-in', attrs: { text: { text: '36-' } } },
-        { id: 'dc_12v_pos', group: 'power-out', attrs: { text: { text: '12+' } } },
-        { id: 'dc_12v_neg', group: 'power-out', attrs: { text: { text: '12-' } } }
-      ]
-    );
-
-    // 11. 12V Accessories
-    const accessories = createComponentWithPorts(
-      750, 220, 140, 60,
-      '12V Accessories\nLights/Horn',
-      '#a855f7',
-      [
-        { id: 'acc_12v_pos', group: 'power-in', attrs: { text: { text: '+' } } },
-        { id: 'acc_12v_neg', group: 'power-in', attrs: { text: { text: '-' } } }
-      ]
-    );
-
-    // Add all components to graph
-    graph.addCells([
-      battery, fuse, sw180, controller, motor, sw202,
-      keySwitch, dirSwitch, throttle, dcConverter, accessories
-    ]);
-
-    // Create port-to-port connections (uses default Manhattan router)
-    const createPortLink = (
-      sourceElement: dia.Element,
-      sourcePort: string,
-      targetElement: dia.Element,
-      targetPort: string,
-      label: string,
-      color: string = '#4b5563',
-      strokeWidth: number = 3
-    ) => {
-      return new shapes.standard.Link({
-        source: { id: sourceElement.id, port: sourcePort },
-        target: { id: targetElement.id, port: targetPort },
-        attrs: {
-          line: {
-            stroke: color,
-            strokeWidth: strokeWidth,
-            targetMarker: {
-              type: 'path',
-              d: 'M 10 -5 0 0 10 5 z',
-              fill: color
-            }
-          }
+      // Define port groups with consistent styling (libavoid-style)
+      const PORT_RADIUS = 8;
+      const portAttrs = {
+        circle: {
+          cursor: 'crosshair',
+          fill: '#4D64DD',
+          stroke: '#F4F7F6',
+          magnet: 'active',
+          r: PORT_RADIUS,
         },
-        labels: label ? [{
+        text: {
+          fontSize: 10,
+          fill: '#1f2937',
+          fontWeight: 'bold'
+        }
+      };
+
+      const portGroups = {
+        'top': {
+          position: 'top',
+          attrs: portAttrs,
+        },
+        'bottom': {
+          position: 'bottom',
+          attrs: portAttrs,
+        },
+        'right': {
+          position: 'right',
+          attrs: portAttrs,
+        },
+        'left': {
+          position: 'left',
+          attrs: portAttrs,
+        },
+      };
+
+      // Helper function to create component with ports (libavoid-style)
+      const createComponentWithPorts = (
+        x: number,
+        y: number,
+        width: number,
+        height: number,
+        label: string,
+        ports: any[]
+      ) => {
+        return new shapes.standard.Rectangle({
+          position: { x, y },
+          size: { width, height },
+          z: 2,
           attrs: {
-            text: {
-              text: label,
-              fill: '#1f2937',
-              fontSize: 10,
-              fontWeight: 'bold'
+            root: {
+              highlighterSelector: 'body',
+              magnetSelector: 'body',
             },
-            rect: {
-              fill: 'white',
-              stroke: color,
+            body: {
+              fill: 'rgba(70,101,229,0.15)',
+              stroke: '#4665E5',
               strokeWidth: 1,
-              rx: 3,
-              ry: 3,
-              refWidth: '100%',
-              refHeight: '100%',
-              refX: '-50%',
-              refY: '-50%'
+              rx: 2,
+              ry: 2,
+            },
+            label: {
+              text: label,
+              fill: '#1e40af',
+              fontSize: 11,
+              fontWeight: 'bold',
+              textAnchor: 'middle',
+              textVerticalAnchor: 'middle'
             }
           },
-          position: {
-            distance: 0.5
+          ports: {
+            groups: portGroups,
+            items: ports
           }
-        }] : []
+        });
+      };
+
+      // 1. Battery Pack - 36V LiFePO4
+      const battery = createComponentWithPorts(
+        50, 50, 140, 80,
+        '36V Battery\n100Ah LiFePO₄',
+        [
+          { id: 'b_plus', group: 'right', attrs: { text: { text: 'B+' } } },
+          { id: 'b_minus', group: 'right', attrs: { text: { text: 'B-' } } }
+        ]
+      );
+
+      // 2. 250A ANL Fuse
+      const fuse = createComponentWithPorts(
+        50, 180, 140, 60,
+        '250A ANL Fuse',
+        [
+          { id: 'fuse_in', group: 'top', attrs: { text: { text: 'IN' } } },
+          { id: 'fuse_out', group: 'bottom', attrs: { text: { text: 'OUT' } } }
+        ]
+      );
+
+      // 3. SW180 Main Contactor
+      const sw180 = createComponentWithPorts(
+        50, 290, 140, 80,
+        'SW180\nMain Contactor',
+        [
+          { id: 'sw180_b_in', group: 'top', attrs: { text: { text: 'B+' } } },
+          { id: 'sw180_b_out', group: 'right', attrs: { text: { text: 'B+' } } },
+          { id: 'sw180_coil_pos', group: 'left', attrs: { text: { text: '86' } } },
+          { id: 'sw180_coil_neg', group: 'left', attrs: { text: { text: '85' } } }
+        ]
+      );
+
+      // 4. Curtis 1204M Controller
+      const controller = createComponentWithPorts(
+        280, 180, 160, 100,
+        'Curtis 1204M\nController',
+        [
+          { id: 'ctrl_b_plus', group: 'left', attrs: { text: { text: 'B+' } } },
+          { id: 'ctrl_b_minus', group: 'left', attrs: { text: { text: 'B-' } } },
+          { id: 'ctrl_m_minus', group: 'right', attrs: { text: { text: 'M-' } } },
+          { id: 'ctrl_ksi', group: 'bottom', attrs: { text: { text: 'KSI' } } },
+          { id: 'ctrl_pot_high', group: 'bottom', attrs: { text: { text: '5V' } } },
+          { id: 'ctrl_pot_wiper', group: 'bottom', attrs: { text: { text: 'POT' } } },
+          { id: 'ctrl_pot_low', group: 'bottom', attrs: { text: { text: 'GND' } } },
+          { id: 'ctrl_enable', group: 'bottom', attrs: { text: { text: 'EN' } } }
+        ]
+      );
+
+      // 5. DC Series Motor
+      const motor = createComponentWithPorts(
+        520, 80, 140, 100,
+        'DC Series Motor',
+        [
+          { id: 'motor_a1', group: 'left', attrs: { text: { text: 'A1' } } },
+          { id: 'motor_a2', group: 'bottom', attrs: { text: { text: 'A2' } } },
+          { id: 'motor_f1', group: 'bottom', attrs: { text: { text: 'F1' } } },
+          { id: 'motor_f2', group: 'bottom', attrs: { text: { text: 'F2' } } }
+        ]
+      );
+
+      // 6. SW202 Reversing Contactor
+      const sw202 = createComponentWithPorts(
+        520, 240, 140, 100,
+        'SW202\nReversing',
+        [
+          { id: 'sw202_a2', group: 'top', attrs: { text: { text: 'A2' } } },
+          { id: 'sw202_f1', group: 'top', attrs: { text: { text: 'F1' } } },
+          { id: 'sw202_f2', group: 'top', attrs: { text: { text: 'F2' } } },
+          { id: 'sw202_fwd_coil', group: 'left', attrs: { text: { text: 'FWD' } } },
+          { id: 'sw202_rev_coil', group: 'left', attrs: { text: { text: 'REV' } } },
+          { id: 'sw202_common', group: 'left', attrs: { text: { text: 'COM' } } }
+        ]
+      );
+
+      // 7. Key Switch (3-position)
+      const keySwitch = createComponentWithPorts(
+        50, 450, 120, 80,
+        'Key Switch\n3-Position',
+        [
+          { id: 'key_batt', group: 'left', attrs: { text: { text: 'BAT' } } },
+          { id: 'key_acc', group: 'right', attrs: { text: { text: 'ACC' } } },
+          { id: 'key_run', group: 'top', attrs: { text: { text: 'RUN' } } }
+        ]
+      );
+
+      // 8. Direction Switch
+      const dirSwitch = createComponentWithPorts(
+        230, 450, 120, 80,
+        'Direction\nSwitch',
+        [
+          { id: 'dir_in', group: 'left', attrs: { text: { text: 'IN' } } },
+          { id: 'dir_fwd', group: 'top', attrs: { text: { text: 'FWD' } } },
+          { id: 'dir_rev', group: 'right', attrs: { text: { text: 'REV' } } }
+        ]
+      );
+
+      // 9. PB-6 Throttle Pot Box
+      const throttle = createComponentWithPorts(
+        410, 450, 120, 80,
+        'PB-6 Throttle\nPot Box',
+        [
+          { id: 'throttle_5v', group: 'top', attrs: { text: { text: '5V' } } },
+          { id: 'throttle_wiper', group: 'top', attrs: { text: { text: 'W' } } },
+          { id: 'throttle_gnd', group: 'top', attrs: { text: { text: 'G' } } },
+          { id: 'throttle_sw', group: 'right', attrs: { text: { text: 'SW' } } }
+        ]
+      );
+
+      // 10. DC-DC Converter
+      const dcConverter = createComponentWithPorts(
+        750, 80, 140, 80,
+        '36V→12V\nConverter',
+        [
+          { id: 'dc_36v_pos', group: 'left', attrs: { text: { text: '36+' } } },
+          { id: 'dc_36v_neg', group: 'left', attrs: { text: { text: '36-' } } },
+          { id: 'dc_12v_pos', group: 'bottom', attrs: { text: { text: '12+' } } },
+          { id: 'dc_12v_neg', group: 'bottom', attrs: { text: { text: '12-' } } }
+        ]
+      );
+
+      // 11. 12V Accessories
+      const accessories = createComponentWithPorts(
+        750, 220, 140, 60,
+        '12V Accessories\nLights/Horn',
+        [
+          { id: 'acc_12v_pos', group: 'top', attrs: { text: { text: '+' } } },
+          { id: 'acc_12v_neg', group: 'top', attrs: { text: { text: '-' } } }
+        ]
+      );
+
+      // Add all components to graph
+      graph.addCells([
+        battery, fuse, sw180, controller, motor, sw202,
+        keySwitch, dirSwitch, throttle, dcConverter, accessories
+      ]);
+
+      // Create port-to-port connections (libavoid-style)
+      const createPortLink = (
+        sourceElement: dia.Element,
+        sourcePort: string,
+        targetElement: dia.Element,
+        targetPort: string
+      ) => {
+        return new shapes.standard.Link({
+          z: 1,
+          source: { id: sourceElement.id, port: sourcePort },
+          target: { id: targetElement.id, port: targetPort },
+          attrs: {
+            line: {
+              stroke: '#464454',
+              strokeWidth: 1,
+              targetMarker: { d: 'M 5 2.5 0 0 5 -2.5 Z' },
+            }
+          }
+        });
+      };
+
+      // Create all connections
+      const allLinks = [
+        // Main Power Path
+        createPortLink(battery, 'b_plus', fuse, 'fuse_in'),
+        createPortLink(fuse, 'fuse_out', sw180, 'sw180_b_in'),
+        createPortLink(sw180, 'sw180_b_out', controller, 'ctrl_b_plus'),
+        createPortLink(controller, 'ctrl_m_minus', motor, 'motor_a1'),
+        createPortLink(motor, 'motor_a2', sw202, 'sw202_a2'),
+        createPortLink(sw202, 'sw202_f1', motor, 'motor_f1'),
+        createPortLink(sw202, 'sw202_f2', motor, 'motor_f2'),
+        // Ground/Negative Returns
+        createPortLink(battery, 'b_minus', controller, 'ctrl_b_minus'),
+        // Control Signals
+        createPortLink(keySwitch, 'key_run', sw180, 'sw180_coil_pos'),
+        createPortLink(keySwitch, 'key_run', controller, 'ctrl_ksi'),
+        createPortLink(dirSwitch, 'dir_fwd', sw202, 'sw202_fwd_coil'),
+        createPortLink(dirSwitch, 'dir_rev', sw202, 'sw202_rev_coil'),
+        createPortLink(controller, 'ctrl_pot_high', throttle, 'throttle_5v'),
+        createPortLink(throttle, 'throttle_wiper', controller, 'ctrl_pot_wiper'),
+        createPortLink(controller, 'ctrl_pot_low', throttle, 'throttle_gnd'),
+        createPortLink(throttle, 'throttle_sw', controller, 'ctrl_enable'),
+        // 12V Accessory Circuit
+        createPortLink(battery, 'b_plus', dcConverter, 'dc_36v_pos'),
+        createPortLink(battery, 'b_minus', dcConverter, 'dc_36v_neg'),
+        createPortLink(dcConverter, 'dc_12v_pos', accessories, 'acc_12v_pos'),
+        createPortLink(dcConverter, 'dc_12v_neg', accessories, 'acc_12v_neg'),
+      ];
+
+      // Add all links to graph
+      graph.addCells(allLinks);
+
+      // Initialize and start the AvoidRouter
+      const router = new AvoidRouter(graph, {
+        shapeBufferDistance: 20,
+        idealNudgingDistance: 10,
+        portOverflow: PORT_RADIUS,
+      });
+
+      routerRef.current = router;
+
+      router.addGraphListeners();
+      router.routeAll();
+
+      // Unfreeze the paper to show the diagram
+      paper.unfreeze();
+      paper.fitToContent({
+        useModelGeometry: true,
+        padding: 100,
+        allowNewOrigin: 'any',
+      });
+
+      // Add interactivity
+      paper.on('element:pointerclick', (elementView) => {
+        const element = elementView.model;
+        const label = element.attr('label/text');
+        const ports = element.getPorts();
+        const portList = ports.map((p: any) => `  • ${p.attrs?.text?.text || p.id}`).join('\n');
+
+        alert(`Component: ${label}\n\nPorts:\n${portList}\n\nClick ports to see connection details.`);
+      });
+
+      paper.on('link:pointerclick', (linkView) => {
+        const link = linkView.model;
+        const source = link.source();
+        const target = link.target();
+
+        if (!source.id || !target.id) return;
+
+        const sourceEl = graph.getCell(source.id);
+        const targetEl = graph.getCell(target.id);
+        const sourceName = sourceEl?.attr('label/text') || 'Unknown';
+        const targetName = targetEl?.attr('label/text') || 'Unknown';
+
+        alert(
+          `Connection Details\n\n` +
+          `From: ${sourceName} [${source.port}]\n` +
+          `To: ${targetName} [${target.port}]\n\n` +
+          `Wire routing uses libavoid orthogonal algorithm:\n` +
+          `• Automatic obstacle avoidance\n` +
+          `• 20px buffer distance from components\n` +
+          `• Real-time rerouting when dragging components`
+        );
       });
     };
 
-    // Main Power Path (RED - thick)
-    const powerLinks = [
-      createPortLink(battery, 'b_plus', fuse, 'fuse_in', '', '#dc2626', 4),
-      createPortLink(fuse, 'fuse_out', sw180, 'sw180_b_in', '', '#dc2626', 4),
-      createPortLink(sw180, 'sw180_b_out', controller, 'ctrl_b_plus', '', '#dc2626', 4),
-      createPortLink(controller, 'ctrl_m_minus', motor, 'motor_a1', '', '#f59e0b', 4),
-      createPortLink(motor, 'motor_a2', sw202, 'sw202_a2', '', '#f59e0b', 4),
-      createPortLink(sw202, 'sw202_f1', motor, 'motor_f1', '', '#6366f1', 3),
-      createPortLink(sw202, 'sw202_f2', motor, 'motor_f2', '', '#6366f1', 3),
-    ];
-
-    // Ground/Negative Returns (BLACK - thick)
-    const groundLinks = [
-      createPortLink(battery, 'b_minus', controller, 'ctrl_b_minus', '', '#1f2937', 4),
-    ];
-
-    // Control Signals (BLUE - thin)
-    const controlLinks = [
-      createPortLink(keySwitch, 'key_run', sw180, 'sw180_coil_pos', '', '#3b82f6', 2),
-      createPortLink(keySwitch, 'key_run', controller, 'ctrl_ksi', '', '#3b82f6', 2),
-      createPortLink(dirSwitch, 'dir_fwd', sw202, 'sw202_fwd_coil', '', '#3b82f6', 2),
-      createPortLink(dirSwitch, 'dir_rev', sw202, 'sw202_rev_coil', '', '#3b82f6', 2),
-      createPortLink(controller, 'ctrl_pot_high', throttle, 'throttle_5v', '', '#14b8a6', 2),
-      createPortLink(throttle, 'throttle_wiper', controller, 'ctrl_pot_wiper', '', '#14b8a6', 2),
-      createPortLink(controller, 'ctrl_pot_low', throttle, 'throttle_gnd', '', '#14b8a6', 2),
-      createPortLink(throttle, 'throttle_sw', controller, 'ctrl_enable', '', '#14b8a6', 2),
-    ];
-
-    // 12V Accessory Circuit (PURPLE)
-    const accessoryLinks = [
-      createPortLink(battery, 'b_plus', dcConverter, 'dc_36v_pos', '', '#8b5cf6', 3),
-      createPortLink(battery, 'b_minus', dcConverter, 'dc_36v_neg', '', '#8b5cf6', 3),
-      createPortLink(dcConverter, 'dc_12v_pos', accessories, 'acc_12v_pos', '', '#a855f7', 2),
-      createPortLink(dcConverter, 'dc_12v_neg', accessories, 'acc_12v_neg', '', '#a855f7', 2),
-    ];
-
-    // Add all links to graph
-    graph.addCells([...powerLinks, ...groundLinks, ...controlLinks, ...accessoryLinks]);
-
-    // Add interactivity
-    paper.on('element:pointerclick', (elementView) => {
-      const element = elementView.model;
-      const label = element.attr('label/text');
-      const ports = element.getPorts();
-      const portList = ports.map((p: any) => `  • ${p.attrs?.text?.text || p.id}`).join('\n');
-
-      alert(`Component: ${label}\n\nPorts:\n${portList}\n\nClick ports to see connection details.`);
-    });
-
-    paper.on('link:pointerclick', (linkView) => {
-      const link = linkView.model;
-      const source = link.source();
-      const target = link.target();
-      const labels = link.labels();
-      const labelText = labels && labels.length > 0 ? labels[0].attrs?.text?.text : 'Connection';
-
-      if (!source.id || !target.id) return;
-
-      const sourceEl = graph.getCell(source.id);
-      const targetEl = graph.getCell(target.id);
-      const sourceName = sourceEl?.attr('label/text') || 'Unknown';
-      const targetName = targetEl?.attr('label/text') || 'Unknown';
-
-      alert(
-        `Connection Details\n\n` +
-        `From: ${sourceName} [${source.port}]\n` +
-        `To: ${targetName} [${target.port}]\n\n` +
-        `Wire colors indicate circuit type:\n` +
-        `• Red/Orange = Power (2AWG)\n` +
-        `• Black = Ground (2AWG)\n` +
-        `• Blue = Control signals (14-16AWG)\n` +
-        `• Teal = Throttle (18AWG)\n` +
-        `• Purple = 12V accessories`
-      );
-    });
+    initDiagram();
 
     // Cleanup function
     return () => {
-      paper.remove();
+      if (routerRef.current) {
+        routerRef.current.removeGraphListeners();
+      }
+      if (paper) {
+        paper.remove();
+      }
     };
   }, [width, height]);
 
   return (
     <div className="space-y-4">
       <h2 className="text-2xl font-bold">{title}</h2>
-      <div
-        ref={paperContainer}
-        className="border border-gray-300 rounded-lg shadow-lg mx-auto overflow-auto"
-        style={{ width: `${width}px`, height: `${height}px` }}
-      />
+      {isLoading ? (
+        <div className="flex items-center justify-center border border-gray-300 rounded-lg shadow-lg mx-auto" style={{ width: `${width}px`, height: `${height}px` }}>
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading libavoid routing engine...</p>
+          </div>
+        </div>
+      ) : (
+        <div
+          ref={paperContainer}
+          className="border border-gray-300 rounded-lg shadow-lg mx-auto overflow-auto"
+          style={{ width: `${width}px`, height: `${height}px` }}
+        />
+      )}
       <div className="bg-blue-50 dark:bg-gray-800 p-4 rounded-lg">
         <h3 className="font-bold mb-2">Interactive Features:</h3>
         <ul className="list-disc list-inside space-y-1 text-sm">
           <li>Click on components to view all port definitions</li>
           <li>Click on connections to see source and destination ports</li>
           <li>Drag components to rearrange - connections automatically re-route!</li>
-          <li><strong>Smart Routing:</strong> Manhattan algorithm avoids obstacles with 20px padding</li>
-          <li>Port colors: Red = Power, Blue = Control signals, Orange = Motor</li>
+          <li><strong>Advanced Routing:</strong> Libavoid orthogonal routing with obstacle avoidance</li>
+          <li>All ports use consistent blue styling for cleaner visual design</li>
         </ul>
         <div className="mt-3 pt-3 border-t border-gray-300 dark:border-gray-600">
           <h4 className="font-bold mb-1 text-sm">Port Naming:</h4>
@@ -511,13 +425,14 @@ export default function WiringDiagram({
           </div>
         </div>
         <div className="mt-3 pt-3 border-t border-gray-300 dark:border-gray-600">
-          <h4 className="font-bold mb-1 text-sm">Smart Routing:</h4>
+          <h4 className="font-bold mb-1 text-sm">Libavoid Routing Engine:</h4>
           <div className="text-xs space-y-1">
-            <div>• JointJS v4 Manhattan algorithm for intelligent pathfinding</div>
+            <div>• Orthogonal (horizontal/vertical only) pathfinding algorithm</div>
+            <div>• WebAssembly-based high-performance routing</div>
             <div>• Automatically avoids all component obstacles</div>
             <div>• Real-time re-routing when components are dragged</div>
-            <div>• 20px padding prevents wire-to-component overlap</div>
-            <div>• Maximum 2000 routing loops for complex paths</div>
+            <div>• 20px buffer distance prevents wire-to-component overlap</div>
+            <div>• Intelligent nudging to separate overlapping paths</div>
           </div>
         </div>
       </div>
