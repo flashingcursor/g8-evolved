@@ -97,15 +97,25 @@ export default function WiringDiagram({
         }),
       });
 
-      // Define port groups with consistent styling (libavoid-style)
+      // Define port groups with enhanced styling
       const PORT_RADIUS = 8;
       const portAttrs = {
         circle: {
           cursor: 'crosshair',
-          fill: '#4D64DD',
-          stroke: '#F4F7F6',
+          fill: '#3B82F6',
+          stroke: '#FFFFFF',
+          strokeWidth: 2,
           magnet: 'active',
           r: PORT_RADIUS,
+          filter: {
+            name: 'dropShadow',
+            args: {
+              dx: 0,
+              dy: 1,
+              blur: 2,
+              color: 'rgba(0, 0, 0, 0.2)'
+            }
+          }
         }
       };
 
@@ -161,15 +171,42 @@ export default function WiringDiagram({
         },
       };
 
-      // Helper function to create component with ports (libavoid-style)
+      // Helper function to create component with ports (enhanced styling)
       const createComponentWithPorts = (
         x: number,
         y: number,
         width: number,
         height: number,
         label: string,
-        ports: any[]
+        ports: any[],
+        componentType: 'power' | 'control' | 'motor' | 'accessory' = 'control'
       ) => {
+        // Color schemes for different component types
+        const colorSchemes = {
+          power: {
+            gradient: 'linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%)',
+            stroke: '#D97706',
+            labelColor: '#92400E',
+          },
+          motor: {
+            gradient: 'linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%)',
+            stroke: '#2563EB',
+            labelColor: '#1E3A8A',
+          },
+          control: {
+            gradient: 'linear-gradient(135deg, #E0E7FF 0%, #C7D2FE 100%)',
+            stroke: '#4F46E5',
+            labelColor: '#312E81',
+          },
+          accessory: {
+            gradient: 'linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%)',
+            stroke: '#059669',
+            labelColor: '#064E3B',
+          }
+        };
+
+        const scheme = colorSchemes[componentType];
+
         return new shapes.standard.Rectangle({
           position: { x, y },
           size: { width, height },
@@ -180,17 +217,33 @@ export default function WiringDiagram({
               magnetSelector: 'body',
             },
             body: {
-              fill: 'rgba(70,101,229,0.15)',
-              stroke: '#4665E5',
-              strokeWidth: 1,
-              rx: 2,
-              ry: 2,
+              fill: {
+                type: 'linearGradient',
+                stops: [
+                  { offset: '0%', color: scheme.gradient.match(/#[A-F0-9]{6}/gi)?.[0] || '#E0E7FF' },
+                  { offset: '100%', color: scheme.gradient.match(/#[A-F0-9]{6}/gi)?.[1] || '#C7D2FE' }
+                ]
+              },
+              stroke: scheme.stroke,
+              strokeWidth: 2.5,
+              rx: 8,
+              ry: 8,
+              filter: {
+                name: 'dropShadow',
+                args: {
+                  dx: 0,
+                  dy: 2,
+                  blur: 4,
+                  color: 'rgba(0, 0, 0, 0.15)'
+                }
+              }
             },
             label: {
               text: label,
-              fill: '#1e40af',
-              fontSize: 11,
-              fontWeight: 'bold',
+              fill: scheme.labelColor,
+              fontSize: 13,
+              fontWeight: '600',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
               textAnchor: 'middle',
               textVerticalAnchor: 'middle'
             }
@@ -209,7 +262,8 @@ export default function WiringDiagram({
         [
           { id: 'b_plus', group: 'right', attrs: { portLabel: { text: 'B+', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
           { id: 'b_minus', group: 'right', attrs: { portLabel: { text: 'B-', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } }
-        ]
+        ],
+        'power'
       );
 
       // 2. 250A ANL Fuse (Below battery)
@@ -219,7 +273,8 @@ export default function WiringDiagram({
         [
           { id: 'fuse_in', group: 'top', attrs: { portLabel: { text: 'IN', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
           { id: 'fuse_out', group: 'bottom', attrs: { portLabel: { text: 'OUT', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } }
-        ]
+        ],
+        'power'
       );
 
       // 3. SW180 Main Contactor (Below fuse)
@@ -231,7 +286,8 @@ export default function WiringDiagram({
           { id: 'sw180_b_out', group: 'right', attrs: { portLabel: { text: 'B+', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
           { id: 'sw180_coil_pos', group: 'left', attrs: { portLabel: { text: '86', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
           { id: 'sw180_coil_neg', group: 'left', attrs: { portLabel: { text: '85', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } }
-        ]
+        ],
+        'power'
       );
 
       // 4. Curtis 1204M Controller (Center)
@@ -247,7 +303,8 @@ export default function WiringDiagram({
           { id: 'ctrl_pot_wiper', group: 'bottom', attrs: { portLabel: { text: 'POT', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
           { id: 'ctrl_pot_low', group: 'bottom', attrs: { portLabel: { text: 'GND', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
           { id: 'ctrl_enable', group: 'bottom', attrs: { portLabel: { text: 'EN', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } }
-        ]
+        ],
+        'motor'
       );
 
       // 5. DC Series Motor (Top-right area)
@@ -259,7 +316,8 @@ export default function WiringDiagram({
           { id: 'motor_a2', group: 'bottom', attrs: { portLabel: { text: 'A2', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
           { id: 'motor_f1', group: 'bottom', attrs: { portLabel: { text: 'F1', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
           { id: 'motor_f2', group: 'bottom', attrs: { portLabel: { text: 'F2', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } }
-        ]
+        ],
+        'motor'
       );
 
       // 6. SW202 Reversing Contactor (Below motor)
@@ -273,7 +331,8 @@ export default function WiringDiagram({
           { id: 'sw202_fwd_coil', group: 'left', attrs: { portLabel: { text: 'FWD', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
           { id: 'sw202_rev_coil', group: 'left', attrs: { portLabel: { text: 'REV', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
           { id: 'sw202_common', group: 'left', attrs: { portLabel: { text: 'COM', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } }
-        ]
+        ],
+        'motor'
       );
 
       // 7. Key Switch (Bottom-left area)
@@ -284,7 +343,8 @@ export default function WiringDiagram({
           { id: 'key_batt', group: 'left', attrs: { portLabel: { text: 'BAT', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
           { id: 'key_acc', group: 'right', attrs: { portLabel: { text: 'ACC', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
           { id: 'key_run', group: 'top', attrs: { portLabel: { text: 'RUN', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } }
-        ]
+        ],
+        'control'
       );
 
       // 8. Direction Switch (Bottom-center area)
@@ -295,7 +355,8 @@ export default function WiringDiagram({
           { id: 'dir_in', group: 'left', attrs: { portLabel: { text: 'IN', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
           { id: 'dir_fwd', group: 'top', attrs: { portLabel: { text: 'FWD', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
           { id: 'dir_rev', group: 'right', attrs: { portLabel: { text: 'REV', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } }
-        ]
+        ],
+        'control'
       );
 
       // 9. PB-6 Throttle Pot Box (Bottom-right area)
@@ -307,7 +368,8 @@ export default function WiringDiagram({
           { id: 'throttle_wiper', group: 'top', attrs: { portLabel: { text: 'W', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
           { id: 'throttle_gnd', group: 'top', attrs: { portLabel: { text: 'G', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
           { id: 'throttle_sw', group: 'right', attrs: { portLabel: { text: 'SW', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } }
-        ]
+        ],
+        'control'
       );
 
       // 10. DC-DC Converter (Far right, top)
@@ -319,7 +381,8 @@ export default function WiringDiagram({
           { id: 'dc_36v_neg', group: 'left', attrs: { portLabel: { text: '36-', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
           { id: 'dc_12v_pos', group: 'bottom', attrs: { portLabel: { text: '12+', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
           { id: 'dc_12v_neg', group: 'bottom', attrs: { portLabel: { text: '12-', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } }
-        ]
+        ],
+        'accessory'
       );
 
       // 11. 12V Accessories (Far right, below converter)
@@ -329,7 +392,8 @@ export default function WiringDiagram({
         [
           { id: 'acc_12v_pos', group: 'top', attrs: { portLabel: { text: '+', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } },
           { id: 'acc_12v_neg', group: 'top', attrs: { portLabel: { text: '-', fontSize: 10, fill: '#1f2937', fontWeight: 'bold' } } }
-        ]
+        ],
+        'accessory'
       );
 
       // Add all components to graph
